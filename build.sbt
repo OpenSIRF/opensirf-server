@@ -16,5 +16,9 @@ lazy val root = (project in file(".")).
     crossTarget := new java.io.File("target"),
     version := new String(baseVersion.value) + "-" + new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date()).toString(),
     webappWebInfClasses := true,
-    packageOptions in sbt.Keys.`package` += Package.ManifestAttributes( java.util.jar.Attributes.Name.SEALED -> "true" )
+    packageOptions in sbt.Keys.`package` ++=
+        (packageOptions in (Compile, packageBin)).value filter {
+        case x: Package.ManifestAttributes => true
+        case x => false
+    }
 )
