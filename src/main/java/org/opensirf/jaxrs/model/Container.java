@@ -29,7 +29,7 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package com.ibm.opensirf.jaxrs.model;
+package org.opensirf.jaxrs.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

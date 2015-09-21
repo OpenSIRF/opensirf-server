@@ -29,38 +29,37 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package com.ibm.opensirf.format;
+package org.opensirf.format;
 
-import java.io.StringWriter;
+import java.io.InputStream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
-import org.eclipse.persistence.jaxb.MarshallerProperties;
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
-import com.ibm.opensirf.container.ProvenanceInformation;
+import com.ibm.opensirf.catalog.SIRFCatalog;
 
-public class ProvenanceInformationMarshaller {
-	public ProvenanceInformationMarshaller(String mediaType) {
+public class SIRFCatalogUnmarshaller {
+	public SIRFCatalogUnmarshaller(String mediaType) {
 		try
 		{
-			JAXBContext jaxbContext = JAXBContext.newInstance(ProvenanceInformation.class);
-			jaxbMarshaller = jaxbContext.createMarshaller();
-		    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
-			jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, mediaType);
-			jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);			
+			JAXBContext jaxbContext = JAXBContext.newInstance(SIRFCatalog.class);
+			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		    jaxbUnmarshaller.setListener(new VersionIdentifierListener());
+			jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, mediaType);
+			jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);			
 		}
 		catch(JAXBException je) {
 			je.printStackTrace();
 		}
 	}
 	
-	public String marshalProvenanceInformation(ProvenanceInformation p) throws JAXBException {
-		StringWriter w = new StringWriter();
-		jaxbMarshaller.marshal(p,w);
-		return w.toString();
+	public SIRFCatalog unmarshalCatalog(InputStream is) throws JAXBException {
+		return (SIRFCatalog) jaxbUnmarshaller.unmarshal(new StreamSource(is), SIRFCatalog.class).getValue();
 	}
 	
-	private Marshaller jaxbMarshaller;
+	private Unmarshaller jaxbUnmarshaller;
 }

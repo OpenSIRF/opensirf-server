@@ -29,7 +29,7 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package com.ibm.opensirf.jaxrs;
+package org.opensirf.jaxrs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,14 +48,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
+import org.opensirf.format.ProvenanceInformationMarshaller;
+import org.opensirf.format.SIRFCatalogMarshaller;
+import org.opensirf.format.SIRFCatalogUnmarshaller;
+import org.opensirf.jaxrs.model.Container;
+import org.opensirf.jaxrs.model.MagicObject;
+
 import com.ibm.opensirf.catalog.SIRFCatalog;
 import com.ibm.opensirf.container.ProvenanceInformation;
 import com.ibm.opensirf.container.SIRFContainer;
-import com.ibm.opensirf.format.ProvenanceInformationMarshaller;
-import com.ibm.opensirf.format.SIRFCatalogMarshaller;
-import com.ibm.opensirf.format.SIRFCatalogUnmarshaller;
-import com.ibm.opensirf.jaxrs.model.Container;
-import com.ibm.opensirf.jaxrs.model.MagicObject;
 
 @Path("sirf")
 public class ContainerApi {

@@ -29,13 +29,19 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package com.ibm.opensirf.format;
+package org.opensirf.format;
 
+import java.util.HashSet;
+
+import com.ibm.opensirf.audit.AuditLogReference;
 import com.ibm.opensirf.audit.ContainerAuditLog;
 import com.ibm.opensirf.audit.ContainerAuditLogReference;
+import com.ibm.opensirf.audit.PreservationObjectAuditLog;
 import com.ibm.opensirf.catalog.SIRFCatalog;
 import com.ibm.opensirf.container.SIRFContainer;
 import com.ibm.opensirf.object.DigestInformation;
+import com.ibm.opensirf.object.Extension;
+import com.ibm.opensirf.object.ExtensionPair;
 import com.ibm.opensirf.object.FixityInformation;
 import com.ibm.opensirf.object.PreservationObjectIdentifier;
 import com.ibm.opensirf.object.PreservationObjectInformation;
@@ -43,6 +49,8 @@ import com.ibm.opensirf.object.PreservationObjectLogicalIdentifier;
 import com.ibm.opensirf.object.PreservationObjectName;
 import com.ibm.opensirf.object.PreservationObjectParentIdentifier;
 import com.ibm.opensirf.object.PreservationObjectVersionIdentifier;
+import com.ibm.opensirf.object.RelatedObjectReference;
+import com.ibm.opensirf.object.RelatedObjects;
 import com.ibm.opensirf.object.Retention;
 
 public class Test {
@@ -78,71 +86,71 @@ public class Test {
 
 		// Begin: added functionality (for FVT purposes)
 
-//		PreservationObjectIdentifier poId2 = new PreservationObjectIdentifier();
-//		String logicalIdentifier2 = "SWIFT-" + container + "-" + poName;
-//		String versionIdentifier2 = logicalIdentifier2 + "-1.0-2";
-//		poId2.setObjectLogicalIdentifier(new PreservationObjectLogicalIdentifier("logicalIdentifier-2", "en", logicalIdentifier2));
-//		poId2.setObjectParentIdentifier(new PreservationObjectParentIdentifier("parentIdentifier-2", "en", "null"));
-//		poId2.setObjectVersionIdentifier(new PreservationObjectVersionIdentifier("versionIdentifier-2", "en", versionIdentifier2));
-//		poId2.putObjectName(new PreservationObjectName("sample name 1", "en", "'Alone' - a poem written by Edgar Allan Poe"));
-//		poId2.putObjectName(new PreservationObjectName("sample name 2", "en", "Poem 'Alone' by Edgar Allan Poe"));
-//		poi.addObjectIdentifier(poId2);
-//
-//		RelatedObjects ros1 = new RelatedObjects();
-//		RelatedObjectReference ror1 = new RelatedObjectReference();
-//		ror1.setReferenceRole("sample related reference role 1");
-//		ror1.setReferenceType("sample related reference type 1");
-//		ror1.setReferenceValue("sample related reference value 1");
-//		ros1.setObjectRelatedObjectsReference(ror1);
-//		RelatedObjects ros2 = new RelatedObjects();
-//		RelatedObjectReference ror2 = new RelatedObjectReference();
-//		ror2.setReferenceRole("sample related reference role 2");
-//		ror2.setReferenceType("sample related reference type 2");
-//		ror2.setReferenceValue("sample related reference value 2");
-//		ros2.setObjectRelatedObjectsReference(ror2);
-//		HashSet<RelatedObjects> roSet = new HashSet<RelatedObjects>();
-//		roSet.add(ros1);
-//		roSet.add(ros2);
-//		poi.setObjectRelatedObjects(roSet);
-//
-//		HashSet<PreservationObjectAuditLog> alSet = new HashSet<PreservationObjectAuditLog>();
-//		PreservationObjectAuditLog al1 = new PreservationObjectAuditLog();
-//		AuditLogReference alr1 = new AuditLogReference();
-//		alr1.setReferenceRole("AuditLog");
-//		alr1.setReferenceType("sample audit log type 1");
-//		alr1.setReferenceValue("sample audit log value 1");
-//		al1.setObjectAuditLogReference(alr1);
-//		PreservationObjectAuditLog al2 = new PreservationObjectAuditLog();
-//		AuditLogReference alr2 = new AuditLogReference();
-//		alr2.setReferenceRole("AuditLog");
-//		alr2.setReferenceType("sample audit log type 2");
-//		alr2.setReferenceValue("sample audit log value 2");
-//		al2.setObjectAuditLogReference(alr2);
-//		alSet.add(al1);
-//		alSet.add(al2);
-//		poi.setObjectAuditLog(alSet);
-//		
+		PreservationObjectIdentifier poId2 = new PreservationObjectIdentifier();
+		String logicalIdentifier2 = "SWIFT-" + container + "-" + poName;
+		String versionIdentifier2 = logicalIdentifier2 + "-1.0-2";
+		poId2.setObjectLogicalIdentifier(new PreservationObjectLogicalIdentifier("logicalIdentifier-2", "en", logicalIdentifier2));
+		poId2.setObjectParentIdentifier(new PreservationObjectParentIdentifier("parentIdentifier-2", "en", "null"));
+		poId2.setObjectVersionIdentifier(new PreservationObjectVersionIdentifier("versionIdentifier-2", "en", versionIdentifier2));
+		poId2.putObjectName(new PreservationObjectName("sample name 1", "en", "'Alone' - a poem written by Edgar Allan Poe"));
+		poId2.putObjectName(new PreservationObjectName("sample name 2", "en", "Poem 'Alone' by Edgar Allan Poe"));
+		poi.addObjectIdentifier(poId2);
+
+		RelatedObjects ros1 = new RelatedObjects();
+		RelatedObjectReference ror1 = new RelatedObjectReference();
+		ror1.setReferenceRole("sample related reference role 1");
+		ror1.setReferenceType("sample related reference type 1");
+		ror1.setReferenceValue("sample related reference value 1");
+		ros1.setObjectRelatedObjectsReference(ror1);
+		RelatedObjects ros2 = new RelatedObjects();
+		RelatedObjectReference ror2 = new RelatedObjectReference();
+		ror2.setReferenceRole("sample related reference role 2");
+		ror2.setReferenceType("sample related reference type 2");
+		ror2.setReferenceValue("sample related reference value 2");
+		ros2.setObjectRelatedObjectsReference(ror2);
+		HashSet<RelatedObjects> roSet = new HashSet<RelatedObjects>();
+		roSet.add(ros1);
+		roSet.add(ros2);
+		poi.setObjectRelatedObjects(roSet);
+
+		HashSet<PreservationObjectAuditLog> alSet = new HashSet<PreservationObjectAuditLog>();
+		PreservationObjectAuditLog al1 = new PreservationObjectAuditLog();
+		AuditLogReference alr1 = new AuditLogReference();
+		alr1.setReferenceRole("AuditLog");
+		alr1.setReferenceType("sample audit log type 1");
+		alr1.setReferenceValue("sample audit log value 1");
+		al1.setObjectAuditLogReference(alr1);
+		PreservationObjectAuditLog al2 = new PreservationObjectAuditLog();
+		AuditLogReference alr2 = new AuditLogReference();
+		alr2.setReferenceRole("AuditLog");
+		alr2.setReferenceType("sample audit log type 2");
+		alr2.setReferenceValue("sample audit log value 2");
+		al2.setObjectAuditLogReference(alr2);
+		alSet.add(al1);
+		alSet.add(al2);
+		poi.setObjectAuditLog(alSet);
+		
 		Retention r = new Retention("time_period", "10 years");
 		poi.setObjectRetention(r);
-//
-//		HashSet<Extension> exSet = new HashSet<Extension>();
-//		Extension e1 = new Extension();
-//		e1.setObjectExtensionDescription("sample extension description 1");
-//		e1.setObjectExtensionOrganization("sample extension organization 1");
-//		HashSet<ExtensionPair> pairSet = new HashSet<ExtensionPair>();
-//		pairSet.add(new ExtensionPair("extension key example 1", "extension value example 1"));
-//		pairSet.add(new ExtensionPair("extension key example 2", "extension value example 2"));
-//		e1.setObjectExtensionPairs(pairSet);
-//		Extension e2 = new Extension();
-//		e2.setObjectExtensionDescription("sample extension description 2");
-//		e2.setObjectExtensionOrganization("sample extension organization 2");
-//		HashSet<ExtensionPair> pairSet2 = new HashSet<ExtensionPair>();
-//		pairSet2.add(new ExtensionPair("extension key example 3", "extension value example 3"));
-//		pairSet2.add(new ExtensionPair("extension key example 4", "extension value example 4"));
-//		e2.setObjectExtensionPairs(pairSet2);
-//		exSet.add(e1);
-//		exSet.add(e2);
-//		poi.setObjectExtension(exSet);
+
+		HashSet<Extension> exSet = new HashSet<Extension>();
+		Extension e1 = new Extension();
+		e1.setObjectExtensionDescription("sample extension description 1");
+		e1.setObjectExtensionOrganization("sample extension organization 1");
+		HashSet<ExtensionPair> pairSet = new HashSet<ExtensionPair>();
+		pairSet.add(new ExtensionPair("extension key example 1", "extension value example 1"));
+		pairSet.add(new ExtensionPair("extension key example 2", "extension value example 2"));
+		e1.setObjectExtensionPairs(pairSet);
+		Extension e2 = new Extension();
+		e2.setObjectExtensionDescription("sample extension description 2");
+		e2.setObjectExtensionOrganization("sample extension organization 2");
+		HashSet<ExtensionPair> pairSet2 = new HashSet<ExtensionPair>();
+		pairSet2.add(new ExtensionPair("extension key example 3", "extension value example 3"));
+		pairSet2.add(new ExtensionPair("extension key example 4", "extension value example 4"));
+		e2.setObjectExtensionPairs(pairSet2);
+		exSet.add(e1);
+		exSet.add(e2);
+		poi.setObjectExtension(exSet);
 
 		// End: added functionality
 

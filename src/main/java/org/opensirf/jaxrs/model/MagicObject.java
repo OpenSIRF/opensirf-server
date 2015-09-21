@@ -29,37 +29,57 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package com.ibm.opensirf.format;
+package org.opensirf.jaxrs.model;
 
-import java.io.InputStream;
+import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.persistence.jaxb.UnmarshallerProperties;
-
-import com.ibm.opensirf.catalog.SIRFCatalog;
-
-public class SIRFCatalogUnmarshaller {
-	public SIRFCatalogUnmarshaller(String mediaType) {
-		try
-		{
-			JAXBContext jaxbContext = JAXBContext.newInstance(SIRFCatalog.class);
-			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		    jaxbUnmarshaller.setListener(new VersionIdentifierListener());
-			jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, mediaType);
-			jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);			
-		}
-		catch(JAXBException je) {
-			je.printStackTrace();
-		}
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class MagicObject {
+	public MagicObject() { }
+	
+	public MagicObject(Map<String,String> metadata)
+	{
+		sirfCatalogId = metadata.get("sirfcatalogid");
+		sirfLevel = metadata.get("sirflevel");
+		containerSpecification = metadata.get("containerspecification");
 	}
 	
-	public SIRFCatalog unmarshalCatalog(InputStream is) throws JAXBException {
-		return (SIRFCatalog) jaxbUnmarshaller.unmarshal(new StreamSource(is), SIRFCatalog.class).getValue();
+	public String getSirfLevel() {
+		return sirfLevel;
 	}
-	
-	private Unmarshaller jaxbUnmarshaller;
+
+	public void setSirfLevel(String sirfLevel) {
+		this.sirfLevel = sirfLevel;
+	}
+
+	public String getContainerSpecification() {
+		return containerSpecification;
+	}
+
+	public void setContainerSpecification(String containerSpecification) {
+		this.containerSpecification = containerSpecification;
+	}
+
+	public String getSirfCatalogId() {
+		return sirfCatalogId;
+	}
+
+	public void setSirfCatalogId(String sirfCatalogId) {
+		this.sirfCatalogId = sirfCatalogId;
+	}
+
+	@XmlElement
+	private String sirfLevel;
+
+	@XmlElement
+	private String containerSpecification;
+
+	@XmlElement
+	private String sirfCatalogId;
 }

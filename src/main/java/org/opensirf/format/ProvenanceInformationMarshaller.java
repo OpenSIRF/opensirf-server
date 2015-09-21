@@ -29,57 +29,38 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package com.ibm.opensirf.jaxrs.model;
+package org.opensirf.format;
 
-import java.util.Map;
+import java.io.StringWriter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
-public class MagicObject {
-	public MagicObject() { }
-	
-	public MagicObject(Map<String,String> metadata)
-	{
-		sirfCatalogId = metadata.get("sirfcatalogid");
-		sirfLevel = metadata.get("sirflevel");
-		containerSpecification = metadata.get("containerspecification");
+import org.eclipse.persistence.jaxb.MarshallerProperties;
+
+import com.ibm.opensirf.container.ProvenanceInformation;
+
+public class ProvenanceInformationMarshaller {
+	public ProvenanceInformationMarshaller(String mediaType) {
+		try
+		{
+			JAXBContext jaxbContext = JAXBContext.newInstance(ProvenanceInformation.class);
+			jaxbMarshaller = jaxbContext.createMarshaller();
+		    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+			jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, mediaType);
+			jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);			
+		}
+		catch(JAXBException je) {
+			je.printStackTrace();
+		}
 	}
 	
-	public String getSirfLevel() {
-		return sirfLevel;
+	public String marshalProvenanceInformation(ProvenanceInformation p) throws JAXBException {
+		StringWriter w = new StringWriter();
+		jaxbMarshaller.marshal(p,w);
+		return w.toString();
 	}
-
-	public void setSirfLevel(String sirfLevel) {
-		this.sirfLevel = sirfLevel;
-	}
-
-	public String getContainerSpecification() {
-		return containerSpecification;
-	}
-
-	public void setContainerSpecification(String containerSpecification) {
-		this.containerSpecification = containerSpecification;
-	}
-
-	public String getSirfCatalogId() {
-		return sirfCatalogId;
-	}
-
-	public void setSirfCatalogId(String sirfCatalogId) {
-		this.sirfCatalogId = sirfCatalogId;
-	}
-
-	@XmlElement
-	private String sirfLevel;
-
-	@XmlElement
-	private String containerSpecification;
-
-	@XmlElement
-	private String sirfCatalogId;
+	
+	private Marshaller jaxbMarshaller;
 }

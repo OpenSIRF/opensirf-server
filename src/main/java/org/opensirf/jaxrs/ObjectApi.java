@@ -29,7 +29,7 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package com.ibm.opensirf.jaxrs;
+package org.opensirf.jaxrs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,11 +55,11 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.opensirf.format.SIRFCatalogMarshaller;
+import org.opensirf.format.SIRFCatalogUnmarshaller;
 
 import com.ibm.opensirf.catalog.SIRFCatalog;
 import com.ibm.opensirf.container.SIRFContainer;
-import com.ibm.opensirf.format.SIRFCatalogMarshaller;
-import com.ibm.opensirf.format.SIRFCatalogUnmarshaller;
 import com.ibm.opensirf.object.DigestInformation;
 import com.ibm.opensirf.object.FixityInformation;
 import com.ibm.opensirf.object.PreservationObjectIdentifier;

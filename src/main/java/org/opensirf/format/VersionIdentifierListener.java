@@ -29,7 +29,7 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package com.ibm.opensirf.format;
+package org.opensirf.format;
 
 import javax.xml.bind.Unmarshaller.Listener;
 
