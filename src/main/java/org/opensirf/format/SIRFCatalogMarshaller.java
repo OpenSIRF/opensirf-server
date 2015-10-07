@@ -38,8 +38,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
-
-import com.ibm.opensirf.catalog.SIRFCatalog;
+import org.opensirf.catalog.SIRFCatalog;
 
 public class SIRFCatalogMarshaller {
 	public SIRFCatalogMarshaller(String mediaType) {

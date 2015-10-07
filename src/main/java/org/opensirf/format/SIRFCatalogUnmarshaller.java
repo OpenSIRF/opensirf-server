@@ -39,8 +39,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
-
-import com.ibm.opensirf.catalog.SIRFCatalog;
+import org.opensirf.catalog.SIRFCatalog;
 
 public class SIRFCatalogUnmarshaller {
 	public SIRFCatalogUnmarshaller(String mediaType) {

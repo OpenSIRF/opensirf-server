@@ -38,8 +38,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
-
-import com.ibm.opensirf.container.ProvenanceInformation;
+import org.opensirf.container.ProvenanceInformation;
 
 public class ProvenanceInformationMarshaller {
 	public ProvenanceInformationMarshaller(String mediaType) {

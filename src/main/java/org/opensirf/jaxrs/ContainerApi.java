@@ -48,15 +48,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
+import org.opensirf.catalog.SIRFCatalog;
+import org.opensirf.container.ProvenanceInformation;
+import org.opensirf.container.SIRFContainer;
 import org.opensirf.format.ProvenanceInformationMarshaller;
 import org.opensirf.format.SIRFCatalogMarshaller;
 import org.opensirf.format.SIRFCatalogUnmarshaller;
 import org.opensirf.jaxrs.model.Container;
 import org.opensirf.jaxrs.model.MagicObject;
-
-import com.ibm.opensirf.catalog.SIRFCatalog;
-import com.ibm.opensirf.container.ProvenanceInformation;
-import com.ibm.opensirf.container.SIRFContainer;
 
 @Path("sirf")
 public class ContainerApi {

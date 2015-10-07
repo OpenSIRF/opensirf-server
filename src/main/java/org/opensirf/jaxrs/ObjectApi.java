@@ -55,20 +55,19 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.opensirf.catalog.SIRFCatalog;
+import org.opensirf.container.SIRFContainer;
 import org.opensirf.format.SIRFCatalogMarshaller;
 import org.opensirf.format.SIRFCatalogUnmarshaller;
-
-import com.ibm.opensirf.catalog.SIRFCatalog;
-import com.ibm.opensirf.container.SIRFContainer;
-import com.ibm.opensirf.object.DigestInformation;
-import com.ibm.opensirf.object.FixityInformation;
-import com.ibm.opensirf.object.PreservationObjectIdentifier;
-import com.ibm.opensirf.object.PreservationObjectInformation;
-import com.ibm.opensirf.object.PreservationObjectLogicalIdentifier;
-import com.ibm.opensirf.object.PreservationObjectName;
-import com.ibm.opensirf.object.PreservationObjectParentIdentifier;
-import com.ibm.opensirf.object.PreservationObjectVersionIdentifier;
-import com.ibm.opensirf.object.Retention;
+import org.opensirf.obj.DigestInformation;
+import org.opensirf.obj.FixityInformation;
+import org.opensirf.obj.PreservationObjectIdentifier;
+import org.opensirf.obj.PreservationObjectInformation;
+import org.opensirf.obj.PreservationObjectLogicalIdentifier;
+import org.opensirf.obj.PreservationObjectName;
+import org.opensirf.obj.PreservationObjectParentIdentifier;
+import org.opensirf.obj.PreservationObjectVersionIdentifier;
+import org.opensirf.obj.Retention;
 
 @Path("sirf")
 public class ObjectApi {

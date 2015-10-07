@@ -33,8 +33,8 @@ package org.opensirf.format;
 
 import javax.xml.bind.Unmarshaller.Listener;
 
-import com.ibm.opensirf.object.PreservationObjectInformation;
-import com.ibm.opensirf.object.PreservationObjectVersionIdentifier;
+import org.opensirf.obj.PreservationObjectInformation;
+import org.opensirf.obj.PreservationObjectVersionIdentifier;
 
 public class VersionIdentifierListener extends Listener
 {
