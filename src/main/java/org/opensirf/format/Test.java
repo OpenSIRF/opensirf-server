@@ -31,7 +31,7 @@
  */
 package org.opensirf.format;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 
 import org.opensirf.audit.AuditLogReference;
 import org.opensirf.audit.ContainerAuditLog;
@@ -108,12 +108,12 @@ public class Test {
 		ror2.setReferenceType("sample related reference type 2");
 		ror2.setReferenceValue("sample related reference value 2");
 		ros2.setObjectRelatedObjectsReference(ror2);
-		HashSet<RelatedObjects> roSet = new HashSet<RelatedObjects>();
+		ArrayList<RelatedObjects> roSet = new ArrayList<RelatedObjects>();
 		roSet.add(ros1);
 		roSet.add(ros2);
 		poi.setObjectRelatedObjects(roSet);
 
-		HashSet<PreservationObjectAuditLog> alSet = new HashSet<PreservationObjectAuditLog>();
+		ArrayList<PreservationObjectAuditLog> alSet = new ArrayList<PreservationObjectAuditLog>();
 		PreservationObjectAuditLog al1 = new PreservationObjectAuditLog();
 		AuditLogReference alr1 = new AuditLogReference();
 		alr1.setReferenceRole("AuditLog");
@@ -133,18 +133,18 @@ public class Test {
 		Retention r = new Retention("time_period", "10 years");
 		poi.setObjectRetention(r);
 
-		HashSet<Extension> exSet = new HashSet<Extension>();
+		ArrayList<Extension> exSet = new ArrayList<Extension>();
 		Extension e1 = new Extension();
 		e1.setObjectExtensionDescription("sample extension description 1");
 		e1.setObjectExtensionOrganization("sample extension organization 1");
-		HashSet<ExtensionPair> pairSet = new HashSet<ExtensionPair>();
+		ArrayList<ExtensionPair> pairSet = new ArrayList<ExtensionPair>();
 		pairSet.add(new ExtensionPair("extension key example 1", "extension value example 1"));
 		pairSet.add(new ExtensionPair("extension key example 2", "extension value example 2"));
 		e1.setObjectExtensionPairs(pairSet);
 		Extension e2 = new Extension();
 		e2.setObjectExtensionDescription("sample extension description 2");
 		e2.setObjectExtensionOrganization("sample extension organization 2");
-		HashSet<ExtensionPair> pairSet2 = new HashSet<ExtensionPair>();
+		ArrayList<ExtensionPair> pairSet2 = new ArrayList<ExtensionPair>();
 		pairSet2.add(new ExtensionPair("extension key example 3", "extension value example 3"));
 		pairSet2.add(new ExtensionPair("extension key example 4", "extension value example 4"));
 		e2.setObjectExtensionPairs(pairSet2);

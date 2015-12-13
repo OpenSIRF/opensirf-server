@@ -55,6 +55,9 @@ import org.jclouds.openstack.swift.v1.features.ContainerApi;
 import org.jclouds.openstack.swift.v1.features.ObjectApi;
 import org.jclouds.openstack.swift.v1.options.CreateContainerOptions;
 import org.jclouds.openstack.swift.v1.options.PutOptions;
+import org.opensirf.jaxrs.config.ContainerConfiguration;
+import org.opensirf.jaxrs.config.SingleContainerConfiguration;
+import org.opensirf.jaxrs.config.SingleContainerConfiguration.Driver;
 import org.opensirf.jaxrs.model.MagicObject;
 
 import com.google.common.collect.ImmutableMap;
@@ -67,9 +70,13 @@ public class JCloudsApi implements Closeable {
 	private SwiftApi swiftApi;
 	private BlobStoreContext blobStoreContext;
 	public static final String DEFAULT_REGION = "regionOne";
-	
+
 	public JCloudsApi() {
-		this("openstack-swift", "services:swift", "swift", "http://172.17.0.31:35357/v2.0/");
+		this(new SingleContainerConfiguration(Driver.SWIFT, "http://172.17.0.31:35357/v2.0/"));
+	}
+	
+	public JCloudsApi(SingleContainerConfiguration config) {
+		this(config.getDriver().getName(), "services:swift", "swift", config.getEndpoint());
 	}
 
 	public JCloudsApi(String provider, String identity, String credential, String endpoint) {
@@ -80,7 +87,7 @@ public class JCloudsApi implements Closeable {
 
 	protected void createContainer(String containerName) {
 		ContainerApi containerApi = swiftApi.getContainerApiForRegion(DEFAULT_REGION);
-		CreateContainerOptions options = CreateContainerOptions.Builder.metadata(ImmutableMap.of("containerSpecification", "0.15", "sirfLevel", "1", "sirfCatalogId", "catalog.json"));
+		CreateContainerOptions options = CreateContainerOptions.Builder.metadata(ImmutableMap.of("containerSpecification", "1.0", "sirfLevel", "1", "sirfCatalogId", "catalog.json"));
 		containerApi.create(containerName, options);
 	}
 
