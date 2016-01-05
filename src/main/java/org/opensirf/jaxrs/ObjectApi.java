@@ -33,7 +33,6 @@ package org.opensirf.jaxrs;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
@@ -46,19 +45,14 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opensirf.catalog.SIRFCatalog;
-import org.opensirf.container.SIRFContainer;
-import org.opensirf.format.SIRFCatalogMarshaller;
-import org.opensirf.format.SIRFCatalogUnmarshaller;
 import org.opensirf.obj.DigestInformation;
 import org.opensirf.obj.FixityInformation;
 import org.opensirf.obj.PreservationObjectIdentifier;
@@ -68,6 +62,8 @@ import org.opensirf.obj.PreservationObjectName;
 import org.opensirf.obj.PreservationObjectParentIdentifier;
 import org.opensirf.obj.PreservationObjectVersionIdentifier;
 import org.opensirf.obj.Retention;
+import org.opensirf.storage.StorageContainerStrategy;
+import org.opensirf.storage.StrategyFactory;
 
 @Path("sirf")
 public class ObjectApi {
@@ -76,20 +72,12 @@ public class ObjectApi {
 	@Path("container/{containername}/{po}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public PreservationObjectInformation getPOMetadata(@PathParam("containername") String containerName, @PathParam("po") String poUUID) throws IOException {
-		JCloudsApi jcloudsSwift = new JCloudsApi();
-		InputStream is = jcloudsSwift.getFileInputStream(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
-		SIRFCatalog catalog = null;
-		PreservationObjectInformation poi = null;
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
 		
-		try {
-			catalog = new SIRFCatalogUnmarshaller("application/json").unmarshalCatalog(is);
-			poi = catalog.getSirfObjects().get(poUUID);
-			jcloudsSwift.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} catch (JAXBException jbe) {
-			jbe.printStackTrace();
-		}
+		SIRFCatalog c = strat.getCatalog();
+		PreservationObjectInformation poi = null;
+		poi = c.getSirfObjects().get(poUUID);
+		strat.close();
 		
 		return poi;
 	}
@@ -98,30 +86,11 @@ public class ObjectApi {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
 	@Path("container/{containername}/{po}/data")
 	public Response getPreservationObjectData(@PathParam("containername") String containerName, @PathParam("po") String poName) throws IOException {
-		JCloudsApi jcloudsSwift = new JCloudsApi();
-		StreamingOutput so = null;
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
 		
-		try {
-			final InputStream is = jcloudsSwift.getFileInputStream(containerName, poName);
-			
-			so = new StreamingOutput() {
-				public void write(OutputStream out) throws IOException, WebApplicationException {
-                    int read = 0;
-                    byte[] bytes = new byte[1024];
-
-                    while ((read = is.read(bytes)) != -1)
-                        out.write(bytes, 0, read);
-				}	
-			};
-			
-			jcloudsSwift.close();
-			
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+		StreamingOutput so = strat.getPreservationObjectStreamingOutput(poName);
 		
-		return Response
-				.ok(so)
+		return Response.ok(so)
 				.header("content-disposition","attachment;filename=" + poName).build();
 	}
 	
@@ -130,13 +99,10 @@ public class ObjectApi {
 	@Path("container/{containername}/{po}")
 	public Response submitPO(@PathParam("containername") String container, @PathParam("po") String poName, @FormDataParam("objectName") String objectName,
 			@FormDataParam("inputstream") InputStream inputStream) throws IOException, URISyntaxException {
-		JCloudsApi jcloudsSwift = new JCloudsApi();
-		InputStream is = jcloudsSwift.getFileInputStream(container, SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
-		SIRFCatalog catalog = null;
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(container);
 		
 		try {
-			catalog = new SIRFCatalogUnmarshaller("application/json").unmarshalCatalog(is);
-			jcloudsSwift.close();
+			SIRFCatalog catalog = strat.getCatalog();
 		
 			PreservationObjectInformation poi = new PreservationObjectInformation("none");
 			PreservationObjectIdentifier poId = new PreservationObjectIdentifier();
@@ -222,13 +188,13 @@ public class ObjectApi {
 			// End: added functionality
 			
 			catalog.getSirfObjects().put(poi);
-			jcloudsSwift.uploadObjectFromString(container, SIRFContainer.SIRF_DEFAULT_CATALOG_ID, new SIRFCatalogMarshaller("application/json").marshalCatalog(catalog));
-			jcloudsSwift.uploadObjectFromByteArray(container, versionIdentifier, b);
-			jcloudsSwift.close();
+			
+			strat.pushCatalog(catalog);
+			strat.pushPreservationObject(versionIdentifier, b);
+			strat.close();
+			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-		} catch (JAXBException jbe) {
-			jbe.printStackTrace();
 		}
 		
 		return Response.created(new URI("sirf/container/" + container + "/" + poName))
@@ -256,19 +222,15 @@ public class ObjectApi {
 		
 		// TODO: overload with other DELETE
 		
-		JCloudsApi jcloudsSwift = new JCloudsApi();
-		InputStream is = jcloudsSwift.getFileInputStream(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
-		SIRFCatalog catalog = null;
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
 		
 		try {
-			catalog = new SIRFCatalogUnmarshaller("application/json").unmarshalCatalog(is);
+			SIRFCatalog catalog = strat.getCatalog();
 			catalog.getSirfObjects().remove(poName);
-			jcloudsSwift.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID, new SIRFCatalogMarshaller("application/json").marshalCatalog(catalog));		
-			jcloudsSwift.close();
+			strat.pushCatalog(catalog);
+			strat.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-		} catch (JAXBException jbe) {
-			jbe.printStackTrace();
 		}
 
 		return Response.ok().build();
@@ -278,29 +240,17 @@ public class ObjectApi {
 	@Path("container/{containername}/{po}/data")
 	public Response deletePOAndMetadata(@PathParam("containername") String containerName, @PathParam("po") String poName) throws IOException, URISyntaxException {
 		
-		JCloudsApi jcloudsSwift = new JCloudsApi();
-		InputStream is = jcloudsSwift.getFileInputStream(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
-		SIRFCatalog catalog = null;
+
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
 		
 		try {
-			catalog = new SIRFCatalogUnmarshaller("application/json").unmarshalCatalog(is);
-			jcloudsSwift.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} catch (JAXBException jbe) {
-			jbe.printStackTrace();
-		}
-		
-		try {
+			SIRFCatalog catalog = strat.getCatalog();
 			catalog.getSirfObjects().remove(poName);
-			jcloudsSwift.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID, new SIRFCatalogMarshaller("application/json").marshalCatalog(catalog));
-			jcloudsSwift.deleteObject(containerName, poName);
-			jcloudsSwift.close();
-			jcloudsSwift.close();
+			strat.pushCatalog(catalog);
+			strat.deletePreservationObject(poName);
+			strat.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-		} catch (JAXBException jbe) {
-			jbe.printStackTrace();
 		}
 
 		return Response.ok().build();

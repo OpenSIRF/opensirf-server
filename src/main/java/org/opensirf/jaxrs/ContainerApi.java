@@ -32,10 +32,8 @@
 package org.opensirf.jaxrs;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -46,16 +44,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
 
 import org.opensirf.catalog.SIRFCatalog;
-import org.opensirf.container.ProvenanceInformation;
 import org.opensirf.container.SIRFContainer;
-import org.opensirf.format.ProvenanceInformationMarshaller;
-import org.opensirf.format.SIRFCatalogMarshaller;
-import org.opensirf.format.SIRFCatalogUnmarshaller;
-import org.opensirf.jaxrs.model.Container;
 import org.opensirf.jaxrs.model.MagicObject;
+import org.opensirf.storage.StorageContainerStrategy;
+import org.opensirf.storage.StrategyFactory;
 
 @Path("sirf")
 public class ContainerApi {
@@ -63,23 +57,20 @@ public class ContainerApi {
 	@OPTIONS
 	@Path("container/{containername}")
 	public Response containerOptions(@PathParam("containername") String containerName) {
-		return Response
-			.ok()
-			.header("Access-Control-Allow-Origin", "*")
-			.header("Access-Control-Allow-Methods",	"POST, GET, PUT, UPDATE, OPTIONS, DELETE, HEAD")
-			.header("Access-Control-Allow-Headers",	"Content-Type, Accept, X-Requested-With")
-			.build();
+		return Response.ok().header("Access-Control-Allow-Origin", "*")
+				.header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, OPTIONS, DELETE, HEAD")
+				.header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
 	}
-	
+
 	@GET
 	@Path("container/{containername}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public MagicObject getMagicObject(@PathParam("containername") String containerName) {
-		JCloudsApi jcloudsSwift = new JCloudsApi();
-		MagicObject c = jcloudsSwift.containerMetadata(containerName);
-		
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		MagicObject c = strat.retrieveMagicObject();
+
 		try {
-			jcloudsSwift.close();
+			strat.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -90,94 +81,75 @@ public class ContainerApi {
 	@PUT
 	@Path("container/{containername}")
 	public Response createContainer(@PathParam("containername") String containerName) throws IOException, URISyntaxException {
-		JCloudsApi jcloudsSwift = new JCloudsApi();
 
-		try {
-			SIRFContainer container = new SIRFContainer(containerName);
-			jcloudsSwift.createContainer(containerName);
-			ProvenanceInformation pi = new ProvenanceInformation("SNIA LTR TWG");
-			jcloudsSwift.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE,	new ProvenanceInformationMarshaller("application/json").marshalProvenanceInformation(pi));
-			SIRFCatalog catalog = container.getCatalog();
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
 
-			// Unit test for some categories
-//			ContainerAuditLogReference cal = new ContainerAuditLogReference();
-//			cal.setReferenceRole("Container-audit-log");
-//			cal.setReferenceType("container ref type");
-//			cal.setReferenceValue("ref value");
-//			ContainerAuditLogReference cal2 = new ContainerAuditLogReference();
-//			cal2.setReferenceRole("Container-audit-log2");
-//			cal2.setReferenceType("container ref type2");
-//			cal2.setReferenceValue("ref value2");
-//			catalog.getContainerInformation().getContainerAuditLogs().add(cal);
-//			catalog.getContainerInformation().getContainerAuditLogs().add(cal2);
-			// End of unit test
-			
-			jcloudsSwift.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID, new SIRFCatalogMarshaller("application/json").marshalCatalog(catalog));
-			jcloudsSwift.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} catch(JAXBException jbe) {
-			jbe.printStackTrace();
-		}
+		SIRFContainer container = new SIRFContainer(containerName);
+		strat.createContainer(containerName);
+		strat.pushProvenanceInformation("SNIA LTR TWG");
 
-		return Response.created(new URI("sirf/container/" + containerName))
-				.build();
+		SIRFCatalog catalog = container.getCatalog();
+
+		// Unit test for some categories
+		// ContainerAuditLogReference cal = new ContainerAuditLogReference();
+		// cal.setReferenceRole("Container-audit-log");
+		// cal.setReferenceType("container ref type");
+		// cal.setReferenceValue("ref value");
+		// ContainerAuditLogReference cal2 = new ContainerAuditLogReference();
+		// cal2.setReferenceRole("Container-audit-log2");
+		// cal2.setReferenceType("container ref type2");
+		// cal2.setReferenceValue("ref value2");
+		// catalog.getContainerInformation().getContainerAuditLogs().add(cal);
+		// catalog.getContainerInformation().getContainerAuditLogs().add(cal2);
+		// End of unit test
+
+		strat.pushCatalog(catalog);
+
+		strat.close();
+
+		return Response.created(new URI("sirf/container/" + containerName)).build();
 	}
-	
+
 	@DELETE
 	@Path("container/{containername}")
-	public Response deleteContainer(@PathParam("containername") String containerName)
-			throws IOException, URISyntaxException {
-		
-		JCloudsApi jcloudsSwift = new JCloudsApi();
-		jcloudsSwift.deleteContainer(containerName);
-		jcloudsSwift.close();
+	public Response deleteContainer(@PathParam("containername") String containerName) throws IOException {
 
-		try {
-			jcloudsSwift.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		strat.deleteContainer();
+		strat.close();
 
 		return Response.ok().build();
 	}
-	
-	@GET
-	@Path("container")
-	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public HashSet<Container> listContainers() throws IOException {
-		JCloudsApi jcloudsSwift = new JCloudsApi();
-		HashSet<Container> containers = new HashSet<Container>();
-		
-		for(org.jclouds.openstack.swift.v1.domain.Container c : jcloudsSwift.listContainers())
-			containers.add(new Container(c.getName()));
 
-		try {
-			jcloudsSwift.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-
-		return containers;
-	}
+	// Swift specific??
+	// @GET
+	// @Path("container")
+	// @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	// public HashSet<Container> listContainers() throws IOException {
+	//
+	// try {
+	// StorageContainerStrategy strat = StrategyFactory.createStrategy();
+	// HashSet<Container> containers = new HashSet<Container>();
+	//
+	// for(org.jclouds.openstack.swift.v1.domain.Container c :
+	// jcloudsSwift.listContainers())
+	// containers.add(new Container(c.getName()));
+	//
+	// jcloudsSwift.close();
+	// } catch (IOException ioe) {
+	// ioe.printStackTrace();
+	// }
+	//
+	// return containers;
+	// }
 
 	@GET
 	@Path("container/{containername}/catalog")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public SIRFCatalog getCatalog(@PathParam("containername") String containerName)	throws IOException {
-		JCloudsApi jcloudsSwift = new JCloudsApi();
-		InputStream is = jcloudsSwift.getFileInputStream(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
-		SIRFCatalog catalog = null;
-		
-		try {
-			catalog = new SIRFCatalogUnmarshaller("application/json").unmarshalCatalog(is);
-			jcloudsSwift.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} catch (JAXBException jbe) {
-			jbe.printStackTrace();
-		}
-		
-		return catalog;
+	public SIRFCatalog getCatalog(@PathParam("containername") String containerName) throws IOException {
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		SIRFCatalog c = strat.getCatalog();
+		strat.close();
+		return c;
 	}
 }

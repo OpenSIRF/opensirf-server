@@ -55,9 +55,8 @@ import org.jclouds.openstack.swift.v1.features.ContainerApi;
 import org.jclouds.openstack.swift.v1.features.ObjectApi;
 import org.jclouds.openstack.swift.v1.options.CreateContainerOptions;
 import org.jclouds.openstack.swift.v1.options.PutOptions;
-import org.opensirf.jaxrs.config.ContainerConfiguration;
-import org.opensirf.jaxrs.config.SingleContainerConfiguration;
-import org.opensirf.jaxrs.config.SingleContainerConfiguration.Driver;
+import org.opensirf.jaxrs.config.SIRFConfiguration;
+import org.opensirf.jaxrs.config.SwiftConfiguration;
 import org.opensirf.jaxrs.model.MagicObject;
 
 import com.google.common.collect.ImmutableMap;
@@ -65,40 +64,42 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Closeables;
 import com.google.inject.Module;
 
-public class JCloudsApi implements Closeable {
+public class SwiftDriver implements Closeable {
 
 	private SwiftApi swiftApi;
 	private BlobStoreContext blobStoreContext;
-	public static final String DEFAULT_REGION = "regionOne";
-
-	public JCloudsApi() {
-		this(new SingleContainerConfiguration(Driver.SWIFT, "http://172.17.0.31:35357/v2.0/"));
-	}
+	private final String region;
 	
-	public JCloudsApi(SingleContainerConfiguration config) {
-		this(config.getDriver().getName(), "services:swift", "swift", config.getEndpoint());
-	}
-
-	public JCloudsApi(String provider, String identity, String credential, String endpoint) {
+	public SwiftDriver(SIRFConfiguration config) {
+		SwiftConfiguration swiftConfig = (SwiftConfiguration) config;
+		String endpoint = swiftConfig.getEndpoint();
+		String identity = swiftConfig.getIdentity();
+		String credential = swiftConfig.getCredential();
+		String provider = swiftConfig.getProvider();
+		region = swiftConfig.getRegion();
+		
 		Iterable<Module> modules = ImmutableSet.<Module> of(new SLF4JLoggingModule());
-		swiftApi = ContextBuilder.newBuilder(provider).endpoint(endpoint).credentials(identity, credential).modules(modules).buildApi(SwiftApi.class);
-		blobStoreContext = ContextBuilder.newBuilder(provider).credentials(identity, credential).buildView(BlobStoreContext.class);
+		swiftApi = ContextBuilder.newBuilder(provider).endpoint(endpoint).
+				credentials(identity, credential).modules(modules).buildApi(SwiftApi.class);
+		blobStoreContext = ContextBuilder.newBuilder(provider).credentials(identity, credential).
+				buildView(BlobStoreContext.class);
 	}
 
-	protected void createContainer(String containerName) {
-		ContainerApi containerApi = swiftApi.getContainerApiForRegion(DEFAULT_REGION);
-		CreateContainerOptions options = CreateContainerOptions.Builder.metadata(ImmutableMap.of("containerSpecification", "1.0", "sirfLevel", "1", "sirfCatalogId", "catalog.json"));
+	public void createContainer(String containerName) {
+		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
+		CreateContainerOptions options = CreateContainerOptions.Builder.metadata(ImmutableMap.
+				of("containerSpecification", "1.0", "sirfLevel", "1", "sirfCatalogId", "catalog.json"));
 		containerApi.create(containerName, options);
 	}
 
-	protected MagicObject containerMetadata(String containerName) {
-		ContainerApi containerApi = swiftApi.getContainerApiForRegion(DEFAULT_REGION);
+	public MagicObject containerMetadata(String containerName) {
+		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
 		return new MagicObject(containerApi.get(containerName).getMetadata());
 	}
 
-	protected void uploadObjectFromFile(String swiftContainerName, String fileName) {
+	public void uploadObjectFromFile(String swiftContainerName, String fileName) {
 		try {
-			ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(DEFAULT_REGION, swiftContainerName);
+			ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, swiftContainerName);
 			File file = new File(fileName);
 			FileInputStream fis = new FileInputStream(file);
 			byte[] fileBytes = new byte[(int) file.length()];
@@ -112,34 +113,34 @@ public class JCloudsApi implements Closeable {
 		}
 	}
 
-	protected String downloadSmallObjectFromFile(String container, String filename) throws IOException {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(DEFAULT_REGION, container);
+	public String downloadSmallObjectFromFile(String container, String filename) throws IOException {
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, container);
 		SwiftObject fileObject = objectApi.get(filename);
 		InputStream is = fileObject.getPayload().openStream();
 
 		return IOUtils.toString(is);
 	}
 
-	protected InputStream getFileInputStream(String container, String filename) throws IOException {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(DEFAULT_REGION, container);
+	public InputStream getFileInputStream(String container, String filename) throws IOException {
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, container);
 		SwiftObject fileObject = objectApi.get(filename);
 		return fileObject.getPayload().openStream();
 	}
 
-	protected void uploadObjectFromString(String containerName, String fileName, String content) {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(DEFAULT_REGION, containerName);
+	public void uploadObjectFromString(String containerName, String fileName, String content) {
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, containerName);
 		Payload payload = newByteSourcePayload(wrap(content.getBytes()));
 		objectApi.put(fileName, payload, PutOptions.Builder.metadata(ImmutableMap.of("key1", "value1")));
 	}
 	
-	protected void uploadObjectFromByteArray(String containerName, String fileName, byte[] b) {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(DEFAULT_REGION, containerName);
+	public void uploadObjectFromByteArray(String containerName, String fileName, byte[] b) {
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, containerName);
 		Payload payload = newByteSourcePayload(wrap(b));
 		objectApi.put(fileName, payload);
 	}
 
-	protected void deleteContainer(String containerName) {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(DEFAULT_REGION, containerName);
+	public void deleteContainer(String containerName) {
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, containerName);
 		ObjectList list = objectApi.list();
 
 		Iterator<SwiftObject> itr = list.iterator();
@@ -149,17 +150,17 @@ public class JCloudsApi implements Closeable {
 			objectApi.delete(objectName);
 		}
 
-		ContainerApi containerApi = swiftApi.getContainerApiForRegion(DEFAULT_REGION);
+		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
 		containerApi.deleteIfEmpty(containerName);
 	}
 
-	protected void deleteObject(String containerName, String objectName) {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(DEFAULT_REGION, containerName);
+	public void deleteObject(String containerName, String objectName) {
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, containerName);
 		objectApi.delete(objectName);
 	}
 
-	protected Set<Container> listContainers() {
-		ContainerApi containerApi = swiftApi.getContainerApiForRegion(DEFAULT_REGION);
+	public Set<Container> listContainers() {
+		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
 		Set<Container> containers = containerApi.list().toSet();
 
 		return containers;
