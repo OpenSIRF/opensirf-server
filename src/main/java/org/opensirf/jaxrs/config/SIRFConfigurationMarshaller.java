@@ -46,7 +46,7 @@ public class SIRFConfigurationMarshaller {
 			JAXBContext jaxbContext = JAXBContext.newInstance(SIRFConfiguration.class);
 			jaxbMarshaller = jaxbContext.createMarshaller();
 			jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, mediaType);
-			jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);			
+			jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
 		}
 		catch(JAXBException je) {
 			je.printStackTrace();

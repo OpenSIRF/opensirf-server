@@ -6,8 +6,12 @@ import java.io.OutputStream;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
+import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.opensirf.catalog.SIRFCatalog;
 import org.opensirf.container.ProvenanceInformation;
 import org.opensirf.container.SIRFContainer;
@@ -16,6 +20,7 @@ import org.opensirf.format.SIRFCatalogMarshaller;
 import org.opensirf.format.SIRFCatalogUnmarshaller;
 import org.opensirf.jaxrs.SwiftDriver;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
+import org.opensirf.jaxrs.config.SwiftConfiguration;
 import org.opensirf.jaxrs.model.MagicObject;
 
 public class SwiftStrategy implements StorageContainerStrategy {
@@ -187,4 +192,32 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		return null;
 	}
 
+	public Marshaller getMarshaller() {
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(SwiftConfiguration.class);
+			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+			jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
+			jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
+			return jaxbMarshaller;
+		} catch(JAXBException je) {
+			je.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public Unmarshaller getUnmarshaller() {
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(SwiftConfiguration.class);
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			jaxbUnmarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
+			jaxbUnmarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
+			return jaxbUnmarshaller;
+		} catch(JAXBException je) {
+			je.printStackTrace();
+		}
+		
+		return null;
+	}
+	
 }

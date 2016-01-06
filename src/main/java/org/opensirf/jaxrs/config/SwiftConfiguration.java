@@ -2,29 +2,56 @@ package org.opensirf.jaxrs.config;
 
 public class SwiftConfiguration extends SIRFConfiguration {
 
-	public String getEndpoint() {
-		// TODO Auto-generated method stub
-		return super.getEndpoint();
+	private String identity;
+	private String credential;
+	private String provider;
+	private String region;
+
+	public SwiftConfiguration() {
+		super();
+	}
+	
+	public SwiftConfiguration(String containerName, String driver, String endpoint, String identity,
+			String credential, String provider, String region) {
+		super(containerName, driver, endpoint);
+		this.identity = identity;
+		this.credential = credential;
+		this.provider = provider;
+		this.region = region;
 	}
 
 	public String getIdentity() {
-		// TODO Auto-generated method stub
-		return null;
+		return identity;
 	}
 
 	public String getCredential() {
-		// TODO Auto-generated method stub
-		return null;
+		return credential;
 	}
 
 	public String getProvider() {
-		// TODO Auto-generated method stub
-		return null;
+		return provider;
 	}
 
 	public String getRegion() {
-		// TODO Auto-generated method stub
-		return null;
+		return region;
 	}
+
+	public void setIdentity(String identity) {
+		this.identity = identity;
+	}
+
+	public void setCredential(String credential) {
+		this.credential = credential;
+	}
+
+	public void setProvider(String provider) {
+		this.provider = provider;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	
 
 }

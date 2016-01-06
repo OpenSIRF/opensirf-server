@@ -1,6 +1,18 @@
 package org.opensirf.jaxrs.config;
 
+import javax.xml.bind.annotation.XmlTransient;
+
+@XmlTransient
 public abstract class SIRFConfiguration {
+	
+	public SIRFConfiguration() {
+	}
+	
+	public SIRFConfiguration(String containerName, String driver, String endpoint) {
+		this.containerName = containerName;
+		this.driver = driver;
+		this.endpoint = endpoint;
+	}
 	
 	public String getContainerName() {
 		return containerName;
