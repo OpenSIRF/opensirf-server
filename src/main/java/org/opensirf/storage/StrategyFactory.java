@@ -14,8 +14,10 @@ public class StrategyFactory {
 			SIRFConfiguration c = new SIRFConfigurationUnmarshaller("application/json").
 					unmarshalConfig(new FileInputStream(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"));
 			
-			if(c.getDriver().equalsIgnoreCase("swift"))
-				return new SwiftStrategy();
+			if(c.getDriver().equalsIgnoreCase("swift")) {
+				System.out.println("USING SWIFT DRIVER");
+				return new SwiftStrategy(c);
+			}
 			
 		} catch(IOException ioe) {
 			ioe.printStackTrace();

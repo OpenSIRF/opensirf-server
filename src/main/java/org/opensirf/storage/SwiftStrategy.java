@@ -1,8 +1,11 @@
 package org.opensirf.storage;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
@@ -10,6 +13,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.opensirf.catalog.SIRFCatalog;
@@ -24,6 +28,14 @@ import org.opensirf.jaxrs.config.SwiftConfiguration;
 import org.opensirf.jaxrs.model.MagicObject;
 
 public class SwiftStrategy implements StorageContainerStrategy {
+	public SwiftStrategy() {
+		
+	}
+	
+	public SwiftStrategy(SIRFConfiguration c) { 
+		this.config = c;
+	}
+	
 	public void setConfig(SIRFConfiguration c) {
 		this.config = c;
 	}
@@ -192,13 +204,16 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		return null;
 	}
 
-	public Marshaller getMarshaller() {
+	public String marshalConfig(SwiftConfiguration config) {
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(SwiftConfiguration.class);
 			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 			jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 			jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
-			return jaxbMarshaller;
+			StringWriter w = new StringWriter();
+			jaxbMarshaller.marshal(config,w);			
+			return w.toString();
+			
 		} catch(JAXBException je) {
 			je.printStackTrace();
 		}
@@ -206,16 +221,18 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		return null;
 	}
 	
-	public Unmarshaller getUnmarshaller() {
+	public SwiftConfiguration unmarshalConfig(String configPath) {
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(SwiftConfiguration.class);
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 			jaxbUnmarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
-			return jaxbUnmarshaller;
+			return (SwiftConfiguration) jaxbUnmarshaller.unmarshal(new StreamSource(new FileInputStream(configPath)), SwiftConfiguration.class).getValue();
 		} catch(JAXBException je) {
 			je.printStackTrace();
-		}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} 
 		
 		return null;
 	}

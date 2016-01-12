@@ -44,7 +44,7 @@ public class SIRFConfigurationUnmarshaller {
 	public SIRFConfigurationUnmarshaller(String mediaType) {
 		try
 		{
-			JAXBContext jaxbContext = JAXBContext.newInstance(SIRFConfiguration.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(SIRFConfiguration.class, SwiftConfiguration.class);
 			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, mediaType);
 			jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);			
@@ -55,7 +55,7 @@ public class SIRFConfigurationUnmarshaller {
 	}
 	
 	public SIRFConfiguration unmarshalConfig(InputStream is) throws JAXBException {
-		return (SIRFConfiguration) jaxbUnmarshaller.unmarshal(new StreamSource(is), SIRFConfiguration.class).getValue();
+		return jaxbUnmarshaller.unmarshal(new StreamSource(is), SIRFConfiguration.class).getValue();
 	}
 	
 	private Unmarshaller jaxbUnmarshaller;

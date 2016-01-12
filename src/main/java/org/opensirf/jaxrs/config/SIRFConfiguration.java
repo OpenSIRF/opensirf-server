@@ -1,9 +1,16 @@
 package org.opensirf.jaxrs.config;
 
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
-@XmlTransient
-public abstract class SIRFConfiguration {
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlSeeAlso({SwiftConfiguration.class})
+
+// TODO: make abstract but still compatible with JAXB
+public class SIRFConfiguration {
 	
 	public SIRFConfiguration() {
 	}
@@ -12,6 +19,10 @@ public abstract class SIRFConfiguration {
 		this.containerName = containerName;
 		this.driver = driver;
 		this.endpoint = endpoint;
+	}
+	
+	public void setContainerName(String name) {
+		this.containerName = name;
 	}
 	
 	public String getContainerName() {
