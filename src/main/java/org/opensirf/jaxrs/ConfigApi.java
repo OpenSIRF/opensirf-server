@@ -15,8 +15,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
-import org.opensirf.jaxrs.config.SIRFConfiguration;
-import org.opensirf.jaxrs.config.SIRFConfigurationMarshaller;
+import org.opensirf.jaxrs.config.ContainerConfiguration;
+import org.opensirf.jaxrs.config.ContainerConfigurationMarshaller;
 import org.opensirf.jaxrs.config.SwiftConfiguration;
 import org.opensirf.storage.SwiftStrategy;
 
@@ -26,10 +26,10 @@ public class ConfigApi {
 	@PUT
 	@Path("config/singleContainer")
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public Response configureSingleContainer(SIRFConfiguration config) throws JAXBException, IOException, URISyntaxException {
+	public Response configureSingleContainer(ContainerConfiguration config) throws JAXBException, IOException, URISyntaxException {
 
-		FileOutputStream fos = new FileOutputStream(new File(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"));
-		fos.write(new SIRFConfigurationMarshaller("application/json").marshalConfig(config).getBytes());
+		FileOutputStream fos = new FileOutputStream(new File(ContainerConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"));
+		fos.write(new ContainerConfigurationMarshaller("application/json").marshalConfig(config).getBytes());
 		fos.flush();
 		fos.close();
 		
@@ -40,7 +40,7 @@ public class ConfigApi {
 	@Path("config")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public SwiftConfiguration getConfiguration() throws JAXBException, IOException, URISyntaxException {
-		SwiftConfiguration s = (SwiftConfiguration) new SwiftStrategy().unmarshalConfig(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json");
+		SwiftConfiguration s = (SwiftConfiguration) new SwiftStrategy().unmarshalConfig(ContainerConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json");
 		return s;
 	}
 	
@@ -49,7 +49,7 @@ public class ConfigApi {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String getConfiguration2() throws JAXBException, IOException, URISyntaxException {
 		SwiftStrategy strat = new SwiftStrategy();		
-		SwiftConfiguration s = (SwiftConfiguration) strat.unmarshalConfig(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json");
+		SwiftConfiguration s = (SwiftConfiguration) strat.unmarshalConfig(ContainerConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json");
 		// JSONP response
 		return "configCallback(" + strat.marshalConfig(s) + ");";
 	}

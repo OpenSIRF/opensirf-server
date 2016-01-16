@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SwiftConfiguration extends SIRFConfiguration {
+public class SwiftConfiguration extends ContainerConfiguration {
 
 	private String identity;
 	private String credential;

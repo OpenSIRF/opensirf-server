@@ -55,7 +55,7 @@ import org.jclouds.openstack.swift.v1.features.ContainerApi;
 import org.jclouds.openstack.swift.v1.features.ObjectApi;
 import org.jclouds.openstack.swift.v1.options.CreateContainerOptions;
 import org.jclouds.openstack.swift.v1.options.PutOptions;
-import org.opensirf.jaxrs.config.SIRFConfiguration;
+import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.SwiftConfiguration;
 import org.opensirf.jaxrs.model.MagicObject;
 
@@ -70,7 +70,7 @@ public class SwiftDriver implements Closeable {
 	private BlobStoreContext blobStoreContext;
 	private final String region;
 	
-	public SwiftDriver(SIRFConfiguration config) {
+	public SwiftDriver(ContainerConfiguration config) {
 		SwiftConfiguration swiftConfig = (SwiftConfiguration) config;
 		String endpoint = swiftConfig.getEndpoint();
 		String identity = swiftConfig.getIdentity();

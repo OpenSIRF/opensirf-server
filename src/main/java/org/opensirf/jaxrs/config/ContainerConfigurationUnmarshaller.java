@@ -31,33 +31,32 @@
  */
 package org.opensirf.jaxrs.config;
 
-import java.io.StringWriter;
+import java.io.InputStream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
-import org.eclipse.persistence.jaxb.MarshallerProperties;
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
-public class SIRFConfigurationMarshaller {
-	public SIRFConfigurationMarshaller(String mediaType) {
+public class ContainerConfigurationUnmarshaller {
+	public ContainerConfigurationUnmarshaller(String mediaType) {
 		try
 		{
-			JAXBContext jaxbContext = JAXBContext.newInstance(SIRFConfiguration.class);
-			jaxbMarshaller = jaxbContext.createMarshaller();
-			jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, mediaType);
-			jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
+			JAXBContext jaxbContext = JAXBContext.newInstance(ContainerConfiguration.class, SwiftConfiguration.class);
+			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, mediaType);
+			jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);			
 		}
 		catch(JAXBException je) {
 			je.printStackTrace();
 		}
 	}
 	
-	public String marshalConfig(SIRFConfiguration c) throws JAXBException {
-		StringWriter w = new StringWriter();
-		jaxbMarshaller.marshal(c,w);
-		return w.toString();
+	public ContainerConfiguration unmarshalConfig(InputStream is) throws JAXBException {
+		return jaxbUnmarshaller.unmarshal(new StreamSource(is), ContainerConfiguration.class).getValue();
 	}
 	
-	private Marshaller jaxbMarshaller;
+	private Unmarshaller jaxbUnmarshaller;
 }

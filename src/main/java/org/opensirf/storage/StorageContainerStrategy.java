@@ -7,16 +7,16 @@ import java.io.InputStream;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.opensirf.catalog.SIRFCatalog;
-import org.opensirf.jaxrs.config.SIRFConfiguration;
+import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.model.MagicObject;
 
 public interface StorageContainerStrategy extends Closeable {
 	
 	public void close() throws IOException;
 	
-	public SIRFConfiguration getConfig();
+	public ContainerConfiguration getConfig();
 	
-	public void setConfig(SIRFConfiguration c);
+	public void setConfig(ContainerConfiguration c);
 	
 	public MagicObject retrieveMagicObject();
 

@@ -23,7 +23,7 @@ import org.opensirf.format.ProvenanceInformationMarshaller;
 import org.opensirf.format.SIRFCatalogMarshaller;
 import org.opensirf.format.SIRFCatalogUnmarshaller;
 import org.opensirf.jaxrs.SwiftDriver;
-import org.opensirf.jaxrs.config.SIRFConfiguration;
+import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.SwiftConfiguration;
 import org.opensirf.jaxrs.model.MagicObject;
 
@@ -32,19 +32,19 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		
 	}
 	
-	public SwiftStrategy(SIRFConfiguration c) { 
+	public SwiftStrategy(ContainerConfiguration c) { 
 		this.config = c;
 	}
 	
-	public void setConfig(SIRFConfiguration c) {
+	public void setConfig(ContainerConfiguration c) {
 		this.config = c;
 	}
 
-	public SIRFConfiguration getConfig() {
+	public ContainerConfiguration getConfig() {
 		return config;
 	}
 
-	private SIRFConfiguration config;
+	private ContainerConfiguration config;
 
 	@Override
 	public void close() throws IOException {
