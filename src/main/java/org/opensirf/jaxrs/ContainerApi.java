@@ -34,6 +34,8 @@ package org.opensirf.jaxrs;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -47,6 +49,8 @@ import javax.ws.rs.core.Response;
 
 import org.opensirf.catalog.SIRFCatalog;
 import org.opensirf.container.SIRFContainer;
+import org.opensirf.jaxrs.config.SIRFConfiguration;
+import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
 import org.opensirf.jaxrs.model.MagicObject;
 import org.opensirf.storage.StorageContainerStrategy;
 import org.opensirf.storage.StrategyFactory;
@@ -66,23 +70,27 @@ public class ContainerApi {
 	@Path("container/{containername}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public MagicObject getMagicObject(@PathParam("containername") String containerName) {
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
-		MagicObject c = strat.retrieveMagicObject();
-
 		try {
+			SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+			StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
+			MagicObject c = strat.retrieveMagicObject();
+
 			strat.close();
+			return c;
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
 
-		return c;
+		return null;
 	}
 
 	@PUT
 	@Path("container/{containername}")
 	public Response createContainer(@PathParam("containername") String containerName) throws IOException, URISyntaxException {
-
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+    	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 
 		SIRFContainer container = new SIRFContainer(containerName);
 		strat.createContainer(containerName);
@@ -113,8 +121,9 @@ public class ContainerApi {
 	@DELETE
 	@Path("container/{containername}")
 	public Response deleteContainer(@PathParam("containername") String containerName) throws IOException {
-
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		strat.deleteContainer();
 		strat.close();
 
@@ -147,7 +156,9 @@ public class ContainerApi {
 	@Path("container/{containername}/catalog")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public SIRFCatalog getCatalog(@PathParam("containername") String containerName) throws IOException {
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		SIRFCatalog c = strat.getCatalog();
 		strat.close();
 		return c;

@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -53,6 +55,8 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opensirf.catalog.SIRFCatalog;
+import org.opensirf.jaxrs.config.SIRFConfiguration;
+import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
 import org.opensirf.obj.DigestInformation;
 import org.opensirf.obj.FixityInformation;
 import org.opensirf.obj.PreservationObjectIdentifier;
@@ -72,7 +76,10 @@ public class ObjectApi {
 	@Path("container/{containername}/{po}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public PreservationObjectInformation getPOMetadata(@PathParam("containername") String containerName, @PathParam("po") String poUUID) throws IOException {
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+    			
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		
 		SIRFCatalog c = strat.getCatalog();
 		PreservationObjectInformation poi = null;
@@ -86,7 +93,10 @@ public class ObjectApi {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
 	@Path("container/{containername}/{po}/data")
 	public Response getPreservationObjectData(@PathParam("containername") String containerName, @PathParam("po") String poName) throws IOException {
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+    	
+		StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		
 		StreamingOutput so = strat.getPreservationObjectStreamingOutput(poName);
 		
@@ -99,7 +109,9 @@ public class ObjectApi {
 	@Path("container/{containername}/{po}")
 	public Response submitPO(@PathParam("containername") String container, @PathParam("po") String poName, @FormDataParam("objectName") String objectName,
 			@FormDataParam("inputstream") InputStream inputStream) throws IOException, URISyntaxException {
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(container);
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+    	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		
 		try {
 			SIRFCatalog catalog = strat.getCatalog();
@@ -221,8 +233,9 @@ public class ObjectApi {
 	public Response deletePO(@PathParam("containername") String containerName, @PathParam("po") String poName) throws IOException, URISyntaxException {
 		
 		// TODO: overload with other DELETE
-		
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+    	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		
 		try {
 			SIRFCatalog catalog = strat.getCatalog();
@@ -239,9 +252,9 @@ public class ObjectApi {
 	@DELETE
 	@Path("container/{containername}/{po}/data")
 	public Response deletePOAndMetadata(@PathParam("containername") String containerName, @PathParam("po") String poName) throws IOException, URISyntaxException {
-		
-
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(containerName);
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+    	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		
 		try {
 			SIRFCatalog catalog = strat.getCatalog();

@@ -36,7 +36,6 @@ public class ContainerConfigurationAdapter extends XmlAdapter<ContainerConfigura
 		
 		// Use driver instead
 		if (adaptedSirfConfig.driver.equalsIgnoreCase(Driver.SWIFT.toString())) {
-			System.out.println("SIM");
 			SwiftConfiguration swiftConfig = new SwiftConfiguration();
 			swiftConfig.setIdentity(adaptedSirfConfig.identity);
 			swiftConfig.setCredential(adaptedSirfConfig.credential);

@@ -47,8 +47,6 @@ public class ContainerConfiguration {
 	
 	private String endpoint;
 	
-	public static final String SIRF_DEFAULT_DIRECTORY = "/var/lib/sirf/";
-	
 	public enum Driver {
 		SWIFT("swift"), EXT4("ext4");
 		

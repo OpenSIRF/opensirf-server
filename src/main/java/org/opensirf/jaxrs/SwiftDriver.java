@@ -31,6 +31,7 @@
  */
 package org.opensirf.jaxrs;
 
+
 import static com.google.common.io.ByteSource.wrap;
 import static org.jclouds.io.Payloads.newByteSourcePayload;
 

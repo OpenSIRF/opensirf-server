@@ -16,5 +16,5 @@ public class SIRFConfiguration {
 		this.containerConfiguration = c;
 	}
 	
-	
+	public static final String SIRF_DEFAULT_DIRECTORY = "/var/lib/sirf/";
 }
