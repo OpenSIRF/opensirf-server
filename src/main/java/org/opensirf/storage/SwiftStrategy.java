@@ -70,7 +70,8 @@ public class SwiftStrategy implements StorageContainerStrategy {
 	public void createContainer(String containerName) {
 		try {
 			SwiftDriver driver = new SwiftDriver(config);
-			driver.createContainer(config.getContainerName());
+			System.out.println("Calling driver, container name = " + containerName);
+			driver.createContainer(containerName);
 			driver.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -79,36 +80,12 @@ public class SwiftStrategy implements StorageContainerStrategy {
 
 	@Override
 	public void pushProvenanceInformation(String authorName) {
-		SwiftDriver driver = new SwiftDriver(config);
-
-		try {
-			driver.uploadObjectFromString(config.getContainerName(), SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE,
-					new ProvenanceInformationMarshaller("application/json")
-							.marshalProvenanceInformation(new ProvenanceInformation(authorName)));
-
-			driver.close();
-
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} catch (JAXBException jbe) {
-			jbe.printStackTrace();
-		}
-
+		pushProvenanceInformation(authorName, config.getContainerName());
 	}
 
 	@Override
 	public void pushCatalog(SIRFCatalog catalog) {
-		SwiftDriver driver = new SwiftDriver(config);
-
-		try {
-			driver.uploadObjectFromString(config.getContainerName(), SIRFContainer.SIRF_DEFAULT_CATALOG_ID,
-					new SIRFCatalogMarshaller("application/json").marshalCatalog(catalog));
-			driver.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} catch (JAXBException jbe) {
-			jbe.printStackTrace();
-		}
+		pushCatalog(catalog, config.getContainerName());
 	}
 
 	@Override
@@ -235,6 +212,39 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		} 
 		
 		return null;
+	}
+
+	@Override
+	public void pushProvenanceInformation(String authorName, String containerName) {
+		SwiftDriver driver = new SwiftDriver(config);
+
+		try {
+			driver.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE,
+					new ProvenanceInformationMarshaller("application/json")
+							.marshalProvenanceInformation(new ProvenanceInformation(authorName)));
+
+			driver.close();
+
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} catch (JAXBException jbe) {
+			jbe.printStackTrace();
+		}		
+	}
+
+	@Override
+	public void pushCatalog(SIRFCatalog catalog, String containerName) {
+		SwiftDriver driver = new SwiftDriver(config);
+
+		try {
+			driver.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID,
+					new SIRFCatalogMarshaller("application/json").marshalCatalog(catalog));
+			driver.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} catch (JAXBException jbe) {
+			jbe.printStackTrace();
+		}
 	}
 	
 }

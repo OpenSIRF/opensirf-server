@@ -90,7 +90,9 @@ public class SwiftDriver implements Closeable {
 		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
 		CreateContainerOptions options = CreateContainerOptions.Builder.metadata(ImmutableMap.
 				of("containerSpecification", "1.0", "sirfLevel", "1", "sirfCatalogId", "catalog.json"));
-		containerApi.create(containerName, options);
+		System.out.println("Creating container " + containerName);
+		boolean returnCode = containerApi.create(containerName, options);
+		System.out.println("Return: " + returnCode);
 	}
 
 	public MagicObject containerMetadata(String containerName) {

@@ -94,7 +94,7 @@ public class ContainerApi {
 
 		SIRFContainer container = new SIRFContainer(containerName);
 		strat.createContainer(containerName);
-		strat.pushProvenanceInformation("SNIA LTR TWG");
+		strat.pushProvenanceInformation("SNIA LTR TWG", containerName);
 
 		SIRFCatalog catalog = container.getCatalog();
 
@@ -111,7 +111,7 @@ public class ContainerApi {
 		// catalog.getContainerInformation().getContainerAuditLogs().add(cal2);
 		// End of unit test
 
-		strat.pushCatalog(catalog);
+		strat.pushCatalog(catalog, containerName);
 
 		strat.close();
 

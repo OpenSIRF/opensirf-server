@@ -44,7 +44,7 @@ public class VersionIdentifierListener extends Listener
 	public VersionIdentifierListener() { }
 	
     public void beforeUnmarshal(Object target, Object parent) {
-    	//System.out.println("-> " + target);
+    	// System.out.println("-> " + target);
     	
     	if(target instanceof PreservationObjectInformation) {
     		oi = (PreservationObjectInformation) target;

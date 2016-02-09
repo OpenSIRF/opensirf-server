@@ -27,6 +27,10 @@ public interface StorageContainerStrategy extends Closeable {
 	public void pushPreservationObject(String poUUID, byte[] b);
 
 	public void pushCatalog(SIRFCatalog catalog);
+	
+	public void pushProvenanceInformation(String authorName, String containerName);
+
+	public void pushCatalog(SIRFCatalog catalog, String containerName);
 
 	public void deleteContainer();
 
