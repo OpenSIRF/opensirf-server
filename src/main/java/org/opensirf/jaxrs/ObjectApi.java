@@ -83,9 +83,7 @@ public class ObjectApi {
 		
 		SIRFCatalog c = strat.getCatalog();
 		PreservationObjectInformation poi = null;
-		poi = c.getSirfObjects().get(poUUID);
-		strat.close();
-		
+		poi = c.getSirfObjects().get(poUUID);		
 		return poi;
 	}
 	
@@ -129,7 +127,6 @@ public class ObjectApi {
 			byte[] b = IOUtils.toByteArray(inputStream);
 			
 			String sha1Hex = getSHA1(b);
-			System.out.println("SHA-1 sum: " + sha1Hex);
 			DigestInformation di = new DigestInformation("ObjectApi", "SHA-1", sha1Hex);
 			poi.setObjectFixity(new FixityInformation(di));
 			
@@ -203,7 +200,6 @@ public class ObjectApi {
 			
 			strat.pushCatalog(catalog);
 			strat.pushPreservationObject(versionIdentifier, b);
-			strat.close();
 			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -236,15 +232,9 @@ public class ObjectApi {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
     	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
-		
-		try {
-			SIRFCatalog catalog = strat.getCatalog();
-			catalog.getSirfObjects().remove(poName);
-			strat.pushCatalog(catalog);
-			strat.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+		SIRFCatalog catalog = strat.getCatalog();
+		catalog.getSirfObjects().remove(poName);
+		strat.pushCatalog(catalog);
 
 		return Response.ok().build();
 	}
@@ -255,16 +245,10 @@ public class ObjectApi {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
     	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
-		
-		try {
-			SIRFCatalog catalog = strat.getCatalog();
-			catalog.getSirfObjects().remove(poName);
-			strat.pushCatalog(catalog);
-			strat.deletePreservationObject(poName);
-			strat.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+		SIRFCatalog catalog = strat.getCatalog();
+		catalog.getSirfObjects().remove(poName);
+		strat.pushCatalog(catalog);
+		strat.deletePreservationObject(poName);
 
 		return Response.ok().build();
 	}

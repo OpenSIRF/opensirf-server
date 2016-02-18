@@ -1,7 +1,5 @@
 package org.opensirf.storage;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.ws.rs.core.StreamingOutput;
@@ -10,9 +8,7 @@ import org.opensirf.catalog.SIRFCatalog;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.model.MagicObject;
 
-public interface StorageContainerStrategy extends Closeable {
-	
-	public void close() throws IOException;
+public interface StorageContainerStrategy {
 	
 	public ContainerConfiguration getConfig();
 	

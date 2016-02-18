@@ -47,12 +47,6 @@ public class SwiftStrategy implements StorageContainerStrategy {
 	private ContainerConfiguration config;
 
 	@Override
-	public void close() throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public MagicObject retrieveMagicObject() {
 		try {
 			SwiftDriver driver = new SwiftDriver(config);
@@ -173,7 +167,9 @@ public class SwiftStrategy implements StorageContainerStrategy {
 	public InputStream getPreservationObjectInputStream(String poUUID) {
 		try {
 			SwiftDriver driver = new SwiftDriver(config);
-			return driver.getFileInputStream(config.getContainerName(), poUUID);
+			InputStream is = driver.getFileInputStream(config.getContainerName(), poUUID);
+			driver.close();
+			return is;
 		} catch(IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -237,6 +233,15 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		SwiftDriver driver = new SwiftDriver(config);
 
 		try {
+			SIRFCatalog existingCatalog = getCatalog();
+			
+			// Only metadata updates
+			if(existingCatalog.getSirfObjects().size() >= 0 && catalog.getSirfObjects().size() == 0) {
+				catalog.getSirfObjects().addAll(existingCatalog.getSirfObjects());
+			}
+			
+			// TODO: else throw exception; number of POs can only change via a PO upload
+			
 			driver.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID,
 					new SIRFCatalogMarshaller("application/json").marshalCatalog(catalog));
 			driver.close();

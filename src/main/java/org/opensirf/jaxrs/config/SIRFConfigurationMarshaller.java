@@ -7,7 +7,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
-import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
 public class SIRFConfigurationMarshaller {
 	public String marshalConfig(SIRFConfiguration c) {

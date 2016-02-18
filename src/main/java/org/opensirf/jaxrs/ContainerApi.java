@@ -75,8 +75,7 @@ public class ContainerApi {
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
 			StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 			MagicObject c = strat.retrieveMagicObject();
-
-			strat.close();
+			
 			return c;
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -89,11 +88,13 @@ public class ContainerApi {
 	@Path("container/{containername}")
 	public Response createContainer(@PathParam("containername") String containerName) throws IOException, URISyntaxException {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
-    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(
+    					SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
     	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 
 		SIRFContainer container = new SIRFContainer(containerName);
 		strat.createContainer(containerName);
+		
 		strat.pushProvenanceInformation("SNIA LTR TWG", containerName);
 
 		SIRFCatalog catalog = container.getCatalog();
@@ -113,8 +114,6 @@ public class ContainerApi {
 
 		strat.pushCatalog(catalog, containerName);
 
-		strat.close();
-
 		return Response.created(new URI("sirf/container/" + containerName)).build();
 	}
 
@@ -125,32 +124,9 @@ public class ContainerApi {
 			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
 		StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		strat.deleteContainer();
-		strat.close();
 
 		return Response.ok().build();
 	}
-
-	// Swift specific??
-	// @GET
-	// @Path("container")
-	// @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	// public HashSet<Container> listContainers() throws IOException {
-	//
-	// try {
-	// StorageContainerStrategy strat = StrategyFactory.createStrategy();
-	// HashSet<Container> containers = new HashSet<Container>();
-	//
-	// for(org.jclouds.openstack.swift.v1.domain.Container c :
-	// jcloudsSwift.listContainers())
-	// containers.add(new Container(c.getName()));
-	//
-	// jcloudsSwift.close();
-	// } catch (IOException ioe) {
-	// ioe.printStackTrace();
-	// }
-	//
-	// return containers;
-	// }
 
 	@GET
 	@Path("container/{containername}/catalog")
@@ -160,7 +136,6 @@ public class ContainerApi {
 			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
 		StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		SIRFCatalog c = strat.getCatalog();
-		strat.close();
 		return c;
 	}
 }

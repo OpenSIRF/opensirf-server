@@ -21,9 +21,6 @@ import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.ContainerConfigurationMarshaller;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
-import org.opensirf.jaxrs.config.SwiftConfiguration;
-import org.opensirf.storage.SwiftStrategy;
-
 
 @Path("sirf")
 public class ConfigApi {
