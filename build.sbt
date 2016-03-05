@@ -1,7 +1,6 @@
-val baseVersion = SettingKey[String]("base-version", "Base version of the project without timestamp.")
-
 lazy val commonSettings = Seq(
-  organization := "org.opensirf"
+  organization := "org.opensirf.jaxrs",
+  version := "1.0.0"
 )
 
 lazy val root = (project in file(".")).
@@ -9,12 +8,11 @@ lazy val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(
     name := "OpenSIRF JAX-RS",
-	artifactName := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
-        artifact.name + "-" + baseVersion.value + "." + artifact.extension    
-	},
-    baseVersion := "1.0.0",
+        artifactName := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
+        artifact.name + "-" + version.value + "." + artifact.extension
+        },
+    version := "1.0.0",
     crossTarget := new java.io.File("target"),
-    version := new String(baseVersion.value) + "-" + new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date()).toString(),
     webappWebInfClasses := true,
     packageOptions in sbt.Keys.`package` ++=
         (packageOptions in (Compile, packageBin)).value filter {
@@ -22,3 +20,16 @@ lazy val root = (project in file(".")).
         case x => false
     }
 )
+
+crossPaths := false
+publishTo := Some(Resolver.url("Artifactory Realm", new URL("http://200.144.189.109:58082/artifactory"))(Resolver.ivyStylePatterns))
+credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+publishMavenStyle := false
+isSnapshot := true
+
+publishArtifact in (Compile, packageDoc) := false
+publishArtifact in (Compile, packageSrc) := false
+
+libraryDependencies += "org.opensirf.core" % "opensirf-core" % "1.0.0"
+resolvers += Resolver.url("my-test-repo", url("http://200.144.189.109:58082/artifactory"))
+
