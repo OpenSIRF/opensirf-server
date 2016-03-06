@@ -236,8 +236,11 @@ public class SwiftStrategy implements StorageContainerStrategy {
 			SIRFCatalog existingCatalog = getCatalog();
 			
 			// Only metadata updates
-			if(existingCatalog.getSirfObjects().size() >= 0 && catalog.getSirfObjects().size() == 0) {
-				catalog.getSirfObjects().addAll(existingCatalog.getSirfObjects());
+			if(existingCatalog.getSirfObjects() != null) {
+				if (existingCatalog.getSirfObjects().size() >= 0 &&
+						catalog.getSirfObjects().size() == 0) {
+					catalog.getSirfObjects().addAll(existingCatalog.getSirfObjects());
+				}
 			}
 			
 			// TODO: else throw exception; number of POs can only change via a PO upload
