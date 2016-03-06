@@ -225,7 +225,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 			ioe.printStackTrace();
 		} catch (JAXBException jbe) {
 			jbe.printStackTrace();
-		}		
+		}
 	}
 
 	@Override
@@ -238,7 +238,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 			// Only metadata updates
 			if(existingCatalog.getSirfObjects() != null) {
 				if (existingCatalog.getSirfObjects().size() >= 0 &&
-						catalog.getSirfObjects().size() == 0) {
+						(catalog.getSirfObjects() == null || catalog.getSirfObjects().size() == 0)) {
 					catalog.getSirfObjects().addAll(existingCatalog.getSirfObjects());
 				}
 			}
