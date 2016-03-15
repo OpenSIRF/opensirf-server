@@ -234,7 +234,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 			SIRFCatalog existingCatalog = getCatalog();
 			
 			// Only metadata updates
-			if(existingCatalog.getSirfObjects() != null) {					
+			if(existingCatalog != null && existingCatalog.getSirfObjects() != null) {					
 				if (existingCatalog.getSirfObjects().size() >= 0 &&
 						catalog.getSirfObjects().size() == 0) {
 					catalog.getSirfObjects().addAll(existingCatalog.getSirfObjects());
