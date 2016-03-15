@@ -1,4 +1,4 @@
-package org.opensirf.storage;
+package org.opensirf.jaxrs.api;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,17 +22,16 @@ import org.opensirf.container.SIRFContainer;
 import org.opensirf.format.ProvenanceInformationMarshaller;
 import org.opensirf.format.SIRFCatalogMarshaller;
 import org.opensirf.format.SIRFCatalogUnmarshaller;
-import org.opensirf.jaxrs.SwiftDriver;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.SwiftConfiguration;
 import org.opensirf.jaxrs.model.MagicObject;
 
 public class SwiftStrategy implements StorageContainerStrategy {
-	public SwiftStrategy() {
+	protected SwiftStrategy() {
 		
 	}
 	
-	public SwiftStrategy(ContainerConfiguration c) { 
+	protected SwiftStrategy(ContainerConfiguration c) { 
 		this.config = c;
 	}
 	
@@ -149,7 +148,6 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		} catch(IOException ioe) {
 			ioe.printStackTrace();
 		}
-		
 	}
 
 	@Override
@@ -236,9 +234,9 @@ public class SwiftStrategy implements StorageContainerStrategy {
 			SIRFCatalog existingCatalog = getCatalog();
 			
 			// Only metadata updates
-			if(existingCatalog.getSirfObjects() != null) {
+			if(existingCatalog.getSirfObjects() != null) {					
 				if (existingCatalog.getSirfObjects().size() >= 0 &&
-						(catalog.getSirfObjects() == null || catalog.getSirfObjects().size() == 0)) {
+						catalog.getSirfObjects().size() == 0) {
 					catalog.getSirfObjects().addAll(existingCatalog.getSirfObjects());
 				}
 			}

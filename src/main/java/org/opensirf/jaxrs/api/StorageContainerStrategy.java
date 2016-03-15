@@ -1,4 +1,4 @@
-package org.opensirf.storage;
+package org.opensirf.jaxrs.api;
 
 import java.io.InputStream;
 

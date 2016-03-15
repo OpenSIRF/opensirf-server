@@ -1,3 +1,4 @@
+package org.opensirf.jaxrs.api;
 //package org.opensirf.storage;
 //
 //import org.opensirf.jaxrs.config.SIRFConfiguration;

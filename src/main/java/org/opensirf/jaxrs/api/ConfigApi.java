@@ -1,4 +1,4 @@
-package org.opensirf.jaxrs;
+package org.opensirf.jaxrs.api;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,7 +42,6 @@ public class ConfigApi {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public SIRFConfiguration getConfiguration() throws JAXBException, IOException, URISyntaxException {
 		String s = new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json")));
-		System.out.println(s);
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().unmarshalConfig(s);
 		return config;
 	}

@@ -29,7 +29,7 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package org.opensirf.jaxrs;
+package org.opensirf.jaxrs.api;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +53,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opensirf.catalog.SIRFCatalog;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
@@ -66,8 +67,6 @@ import org.opensirf.obj.PreservationObjectName;
 import org.opensirf.obj.PreservationObjectParentIdentifier;
 import org.opensirf.obj.PreservationObjectVersionIdentifier;
 import org.opensirf.obj.Retention;
-import org.opensirf.storage.StorageContainerStrategy;
-import org.opensirf.storage.StrategyFactory;
 
 @Path("sirf")
 public class ObjectApi {
@@ -83,7 +82,7 @@ public class ObjectApi {
 		
 		SIRFCatalog c = strat.getCatalog();
 		PreservationObjectInformation poi = null;
-		poi = c.getSirfObjects().get(poUUID);		
+		poi = c.getSirfObjects().get(poUUID);
 		return poi;
 	}
 	
@@ -101,7 +100,7 @@ public class ObjectApi {
 		return Response.ok(so)
 				.header("content-disposition","attachment;filename=" + poName).build();
 	}
-	
+
 	@POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Path("container/{containername}/{po}")
@@ -207,6 +206,42 @@ public class ObjectApi {
 		
 		return Response.created(new URI("sirf/container/" + container + "/" + poName))
 				.build();
+	}
+
+	@POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Path("container2/{containername}/po")
+	public Response submitPO(@PathParam("containername") String container,
+			@FormDataParam("poi") FormDataBodyPart poiBodyPart,
+			@FormDataParam("inputstream") InputStream inputStream)
+					throws IOException, URISyntaxException {
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(
+    			SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+		
+		poiBodyPart.setMediaType(MediaType.APPLICATION_JSON_TYPE);
+	    PreservationObjectInformation poi = poiBodyPart.getValueAs(PreservationObjectInformation.class);
+	     
+    	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
+		
+		try {
+			SIRFCatalog catalog = strat.getCatalog();
+			
+			byte[] b = IOUtils.toByteArray(inputStream);
+			
+			String sha1Hex = getSHA1(b);
+			DigestInformation di = new DigestInformation("ObjectApi", "SHA-1", sha1Hex);
+			poi.setObjectFixity(new FixityInformation(di));
+			catalog.getSirfObjects().put(poi);
+			strat.pushCatalog(catalog);
+			strat.pushPreservationObject(poi.getVersionIdentifierUUID(), b);
+			
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		
+		return Response.created(new URI("sirf/container/" + container + "/" +
+				poi.getVersionIdentifierUUID())).build();
 	}
 	
 	private String getSHA1(byte[] b) {

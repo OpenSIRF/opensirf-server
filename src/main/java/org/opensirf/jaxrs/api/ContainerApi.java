@@ -29,7 +29,7 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package org.opensirf.jaxrs;
+package org.opensirf.jaxrs.api;
 
 import java.io.IOException;
 import java.net.URI;
@@ -52,8 +52,6 @@ import org.opensirf.container.SIRFContainer;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
 import org.opensirf.jaxrs.model.MagicObject;
-import org.opensirf.storage.StorageContainerStrategy;
-import org.opensirf.storage.StrategyFactory;
 
 @Path("sirf")
 public class ContainerApi {

@@ -29,7 +29,7 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package org.opensirf.jaxrs;
+package org.opensirf.jaxrs.api;
 
 import java.util.HashSet;
 import java.util.Set;
