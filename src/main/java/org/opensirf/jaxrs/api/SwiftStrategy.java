@@ -107,6 +107,8 @@ public class SwiftStrategy implements StorageContainerStrategy {
 			ioe.printStackTrace();
 		} catch (JAXBException jbe) {
 			jbe.printStackTrace();
+		} catch(NullPointerException npe) {
+			return null;
 		}
 
 		return catalog;
