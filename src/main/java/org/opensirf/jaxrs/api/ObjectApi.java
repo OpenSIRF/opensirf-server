@@ -114,6 +114,9 @@ public class ObjectApi {
 		
 		poiBodyPart.setMediaType(MediaType.APPLICATION_JSON_TYPE);
 	    PreservationObjectInformation poi = poiBodyPart.getValueAs(PreservationObjectInformation.class);
+	    
+	    poi.setVersionIdentifierUUID(poi.getObjectIdentifiers().get(0).
+	    		getObjectVersionIdentifier().getObjectIdentifierValue());
 	     
     	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 		
@@ -128,7 +131,7 @@ public class ObjectApi {
 			catalog.getSirfObjects().put(poi);
 			strat.pushCatalog(catalog);
 			strat.pushPreservationObject(poi.getVersionIdentifierUUID(), b);
-			
+
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
