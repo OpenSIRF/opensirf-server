@@ -60,13 +60,7 @@ import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
 import org.opensirf.obj.DigestInformation;
 import org.opensirf.obj.FixityInformation;
-import org.opensirf.obj.PreservationObjectIdentifier;
 import org.opensirf.obj.PreservationObjectInformation;
-import org.opensirf.obj.PreservationObjectLogicalIdentifier;
-import org.opensirf.obj.PreservationObjectName;
-import org.opensirf.obj.PreservationObjectParentIdentifier;
-import org.opensirf.obj.PreservationObjectVersionIdentifier;
-import org.opensirf.obj.Retention;
 
 @Path("sirf")
 public class ObjectApi {

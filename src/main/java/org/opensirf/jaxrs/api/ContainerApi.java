@@ -87,29 +87,13 @@ public class ContainerApi {
 	public Response createContainer(@PathParam("containername") String containerName) throws IOException, URISyntaxException {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(
-    					SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+    			SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
     	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
 
 		SIRFContainer container = new SIRFContainer(containerName);
 		strat.createContainer(containerName);
-		
 		strat.pushProvenanceInformation("SNIA LTR TWG", containerName);
-
 		SIRFCatalog catalog = container.getCatalog();
-
-		// Unit test for some categories
-		// ContainerAuditLogReference cal = new ContainerAuditLogReference();
-		// cal.setReferenceRole("Container-audit-log");
-		// cal.setReferenceType("container ref type");
-		// cal.setReferenceValue("ref value");
-		// ContainerAuditLogReference cal2 = new ContainerAuditLogReference();
-		// cal2.setReferenceRole("Container-audit-log2");
-		// cal2.setReferenceType("container ref type2");
-		// cal2.setReferenceValue("ref value2");
-		// catalog.getContainerInformation().getContainerAuditLogs().add(cal);
-		// catalog.getContainerInformation().getContainerAuditLogs().add(cal2);
-		// End of unit test
-
 		strat.pushCatalog(catalog, containerName);
 
 		return Response.created(new URI("sirf/container/" + containerName)).build();
