@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 import org.opensirf.jaxrs.api.StorageContainerStrategy;
-import org.opensirf.jaxrs.api.StrategyFactory;
+import org.opensirf.jaxrs.api.AbstractStrategyFactory;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
 
@@ -28,7 +28,7 @@ public class SwiftStrategyTest {
 	public void testPushPo() throws IOException {
 		String s = new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json")));
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().unmarshalConfig(s);
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
+		StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		byte[] b = "Hello 123".getBytes();
 		strat.pushPreservationObject("aaaa", b);
 	}

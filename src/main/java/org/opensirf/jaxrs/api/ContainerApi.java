@@ -71,7 +71,7 @@ public class ContainerApi {
 		try {
 			SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
-			StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
+			StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 			MagicObject c = strat.retrieveMagicObject();
 			
 			return c;
@@ -88,7 +88,7 @@ public class ContainerApi {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(
     			SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
-    	StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
+    	StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 
 		SIRFContainer container = new SIRFContainer(containerName);
 		strat.createContainer(containerName);
@@ -104,7 +104,7 @@ public class ContainerApi {
 	public Response deleteContainer(@PathParam("containername") String containerName) throws IOException {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
 			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
+		StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		strat.deleteContainer();
 
 		return Response.ok().build();
@@ -116,7 +116,7 @@ public class ContainerApi {
 	public SIRFCatalog getCatalog(@PathParam("containername") String containerName) throws IOException {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
 			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
-		StorageContainerStrategy strat = StrategyFactory.createStrategy(config);
+		StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		SIRFCatalog c = strat.getCatalog();
 		return c;
 	}

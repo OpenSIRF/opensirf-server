@@ -1,5 +1,5 @@
 lazy val commonSettings = Seq(
-  organization := "org.opensirf.jaxrs",
+  organization := "org.opensirf",
   version := "1.0.0"
 )
 
@@ -31,5 +31,6 @@ publishArtifact in (Compile, packageDoc) := false
 publishArtifact in (Compile, packageSrc) := false
 
 libraryDependencies += "org.opensirf.core" % "opensirf-core" % "1.0.0"
+
 resolvers += Resolver.url("SIRF Artifactory", url("http://200.144.189.109:58082/artifactory"))(Resolver.ivyStylePatterns)
 
