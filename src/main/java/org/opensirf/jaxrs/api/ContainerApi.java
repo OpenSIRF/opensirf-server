@@ -125,7 +125,7 @@ public class ContainerApi {
 	
 	@PUT
 	@Path("container/{containername}/catalog")
-	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response updateCatalog(@PathParam("containername") String containerName, 
 			@FormDataParam("catalog") SIRFCatalog catalog) throws IOException, URISyntaxException {
 		
