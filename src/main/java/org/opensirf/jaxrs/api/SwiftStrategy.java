@@ -141,16 +141,6 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		return so;
 	}
 
-	@Override
-	public void pushPreservationObject(String poUUID, byte[] b) {
-		try {
-			SwiftDriver driver = new SwiftDriver(config);
-			driver.uploadObjectFromByteArray(config.getContainerName(), poUUID, b);
-			driver.close();
-		} catch(IOException ioe) {
-			ioe.printStackTrace();
-		}
-	}
 
 	@Override
 	public void deletePreservationObject(String poName) {
@@ -254,5 +244,15 @@ public class SwiftStrategy implements StorageContainerStrategy {
 			jbe.printStackTrace();
 		}
 	}
-	
+
+	@Override
+	public void pushPreservationObject(String poUUID, byte[] b) {
+		try {
+			SwiftDriver driver = new SwiftDriver(config);
+			driver.uploadObjectFromByteArray(config.getContainerName(), poUUID, b);
+			driver.close();
+		} catch(IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
 }

@@ -37,6 +37,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
@@ -47,6 +48,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opensirf.catalog.SIRFCatalog;
 import org.opensirf.container.SIRFContainer;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
@@ -119,5 +121,20 @@ public class ContainerApi {
 		StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		SIRFCatalog c = strat.getCatalog();
 		return c;
+	}
+	
+	@PUT
+	@Path("container/{containername}/catalog")
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public Response updateCatalog(@PathParam("containername") String containerName, 
+			@FormDataParam("catalog") SIRFCatalog catalog) throws IOException, URISyntaxException {
+		
+		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
+    			unmarshalConfig(new String(Files.readAllBytes(Paths.get(
+    			SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+    	StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
+		strat.pushCatalog(catalog, containerName);
+
+		return Response.ok(new URI("sirf/container/" + containerName + "/catalog")).build();
 	}
 }

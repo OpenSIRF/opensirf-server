@@ -28,7 +28,6 @@ public class ConfigApi {
 	@Path("config/singleContainer")
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public Response configureSingleContainer(ContainerConfiguration config) throws JAXBException, IOException, URISyntaxException {
-
 		FileOutputStream fos = new FileOutputStream(new File(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"));
 		fos.write(new ContainerConfigurationMarshaller("application/json").marshalConfig(config).getBytes());
 		fos.flush();
