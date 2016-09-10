@@ -65,7 +65,6 @@
 	<classpathentry kind="lib" path="lib/jsch.agentproxy.usocket-jna-0.0.7.jar"/>
 	<classpathentry kind="lib" path="lib/jsch.agentproxy.usocket-nc-0.0.7.jar"/>
 	<classpathentry kind="lib" path="lib/jsr250-api-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-1.0.13.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-1.0.13.jar"/>
 	<classpathentry kind="lib" path="lib/mimepull-1.9.4.jar"/>

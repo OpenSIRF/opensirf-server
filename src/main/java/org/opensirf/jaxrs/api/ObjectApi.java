@@ -58,6 +58,8 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opensirf.catalog.SIRFCatalog;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
+import org.opensirf.jaxrs.storage.AbstractStrategyFactory;
+import org.opensirf.jaxrs.storage.StorageContainerStrategy;
 import org.opensirf.obj.DigestInformation;
 import org.opensirf.obj.FixityInformation;
 import org.opensirf.obj.PreservationObjectInformation;

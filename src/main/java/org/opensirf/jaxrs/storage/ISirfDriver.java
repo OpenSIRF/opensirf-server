@@ -1,7 +1,7 @@
 /*
  * OpenSIRF JAX-RS
  * 
- * Copyright IBM Corporation 2015.
+ * Copyright IBM Corporation 2016.
  * All Rights Reserved.
  * 
  * MIT License:
@@ -30,26 +30,42 @@
  * copyright holder.
  */
 
-package org.opensirf.jaxrs.api;
+package org.opensirf.jaxrs.storage;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.util.Set;
 
-import org.junit.Test;
-import org.opensirf.jaxrs.config.SIRFConfiguration;
-import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
-import org.opensirf.jaxrs.storage.AbstractStrategyFactory;
-import org.opensirf.jaxrs.storage.StorageContainerStrategy;
+import org.jclouds.openstack.swift.v1.domain.Container;
+import org.opensirf.jaxrs.model.MagicObject;
 
-public class SwiftStrategyTest {
+/**
+ * @author pviana
+ *
+ */
+public interface ISirfDriver extends Closeable {
 
-	@Test
-	public void testPushPo() throws IOException {
-		String s = new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json")));
-		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().unmarshalConfig(s);
-		StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		byte[] b = "Hello 123".getBytes();
-		strat.pushPreservationObject("aaaa", b);
-	}
+	void createContainer(String containerName);
+
+	MagicObject containerMetadata(String containerName);
+
+	void uploadObjectFromFile(String swiftContainerName, String fileName);
+
+	String downloadSmallObjectFromFile(String container, String filename) throws IOException;
+
+	InputStream getFileInputStream(String container, String filename) throws IOException;
+
+	void uploadObjectFromString(String containerName, String fileName, String content);
+
+	void uploadObjectFromByteArray(String containerName, String fileName, byte[] b);
+
+	void deleteContainer(String containerName);
+
+	void deleteObject(String containerName, String objectName);
+
+	Set<Container> listContainers();
+
+	void close() throws IOException;
+
 }

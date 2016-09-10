@@ -54,9 +54,15 @@ import org.opensirf.container.SIRFContainer;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
 import org.opensirf.jaxrs.model.MagicObject;
+import org.opensirf.jaxrs.storage.AbstractStrategyFactory;
+import org.opensirf.jaxrs.storage.StorageContainerStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("sirf")
 public class ContainerApi {
+	
+    static final Logger log = LoggerFactory.getLogger(ContainerApi.class); 
 
 	@OPTIONS
 	@Path("container/{containername}")
@@ -128,13 +134,16 @@ public class ContainerApi {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response updateCatalog(@PathParam("containername") String containerName, 
 			@FormDataParam("catalog") SIRFCatalog catalog) throws IOException, URISyntaxException {
-		
+		log.info("Unmarshalling config...");
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(
     			SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
+		log.info("Creating strategy...");
     	StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
+    	log.info("Pushing catalog...");
 		strat.pushCatalog(catalog, containerName);
 
+		log.info("Sending response...");
 		return Response.ok(new URI("sirf/container/" + containerName + "/catalog")).build();
 	}
 }

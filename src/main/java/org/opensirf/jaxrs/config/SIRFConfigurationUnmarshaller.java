@@ -18,10 +18,11 @@ public class SIRFConfigurationUnmarshaller {
 		    Unmarshaller unmarshaller = jc.createUnmarshaller();
 		    unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
 			unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);	
-		    SIRFConfiguration config = unmarshaller.unmarshal(new StreamSource(new ByteArrayInputStream(s.getBytes())), SIRFConfiguration.class).getValue();
+		    SIRFConfiguration config = unmarshaller.unmarshal(new StreamSource(
+		    		new	ByteArrayInputStream(s.getBytes())), SIRFConfiguration.class)
+		    		.getValue();
 		    
-		    return config;
-			
+		    return config;			
 		} catch(JAXBException e) {
 			e.printStackTrace();
 			return null;

@@ -1,8 +1,10 @@
-package org.opensirf.jaxrs.config;
+package org.opensirf.jaxrs.storage.swift;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.opensirf.jaxrs.config.ContainerConfiguration;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

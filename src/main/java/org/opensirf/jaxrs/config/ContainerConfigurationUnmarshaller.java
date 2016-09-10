@@ -39,6 +39,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
+import org.opensirf.jaxrs.storage.swift.SwiftConfiguration;
 
 public class ContainerConfigurationUnmarshaller {
 	public ContainerConfigurationUnmarshaller(String mediaType) {

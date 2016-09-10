@@ -1,4 +1,4 @@
-package org.opensirf.jaxrs.api;
+package org.opensirf.jaxrs.storage.fs;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,15 +23,15 @@ import org.opensirf.format.ProvenanceInformationMarshaller;
 import org.opensirf.format.SIRFCatalogMarshaller;
 import org.opensirf.format.SIRFCatalogUnmarshaller;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
-import org.opensirf.jaxrs.config.SwiftConfiguration;
 import org.opensirf.jaxrs.model.MagicObject;
+import org.opensirf.jaxrs.storage.StorageContainerStrategy;
 
-public class SwiftStrategy implements StorageContainerStrategy {
-	protected SwiftStrategy() {
+public class FilesystemStrategy implements StorageContainerStrategy {
+	protected FilesystemStrategy() {
 		
 	}
 	
-	protected SwiftStrategy(ContainerConfiguration c) { 
+	public FilesystemStrategy(ContainerConfiguration c) { 
 		this.config = c;
 	}
 	
@@ -48,7 +48,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 	@Override
 	public MagicObject retrieveMagicObject() {
 		try {
-			SwiftDriver driver = new SwiftDriver(config);
+			FilesystemDriver driver = new FilesystemDriver(config);
 			MagicObject mo = driver.containerMetadata(config.getContainerName());
 			driver.close();
 			return mo;
@@ -62,7 +62,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 	@Override
 	public void createContainer(String containerName) {
 		try {
-			SwiftDriver driver = new SwiftDriver(config);
+			FilesystemDriver driver = new FilesystemDriver(config);
 			System.out.println("Calling driver, container name = " + containerName);
 			driver.createContainer(containerName);
 			driver.close();
@@ -83,7 +83,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 
 	@Override
 	public void deleteContainer() {
-		SwiftDriver driver = new SwiftDriver(config);
+		FilesystemDriver driver = new FilesystemDriver(config);
 
 		try {
 			driver.deleteContainer(config.getContainerName());
@@ -98,7 +98,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		SIRFCatalog catalog = null;
 
 		try {
-			SwiftDriver driver = new SwiftDriver(config);
+			FilesystemDriver driver = new FilesystemDriver(config);
 			InputStream is = driver.getFileInputStream(config.getContainerName(), SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
 			
 			catalog = new SIRFCatalogUnmarshaller("application/json").unmarshalCatalog(is);
@@ -116,7 +116,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 
 	@Override
 	public StreamingOutput getPreservationObjectStreamingOutput(String poName) {
-		SwiftDriver driver = new SwiftDriver(config);
+		FilesystemDriver driver = new FilesystemDriver(config);
 		StreamingOutput so = null;
 		
 		try {
@@ -145,7 +145,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 	@Override
 	public void deletePreservationObject(String poName) {
 		try {
-			SwiftDriver driver = new SwiftDriver(config);
+			FilesystemDriver driver = new FilesystemDriver(config);
 			driver.deleteObject(config.getContainerName(), poName);
 			driver.close();
 		} catch(IOException ioe) {
@@ -156,7 +156,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 	@Override
 	public InputStream getPreservationObjectInputStream(String poUUID) {
 		try {
-			SwiftDriver driver = new SwiftDriver(config);
+			FilesystemDriver driver = new FilesystemDriver(config);
 			InputStream is = driver.getFileInputStream(config.getContainerName(), poUUID);
 			driver.close();
 			return is;
@@ -167,9 +167,9 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		return null;
 	}
 
-	public String marshalConfig(SwiftConfiguration config) {
+	public String marshalConfig(FilesystemConfiguration config) {
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(SwiftConfiguration.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(FilesystemConfiguration.class);
 			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 			jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 			jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
@@ -184,13 +184,13 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		return null;
 	}
 	
-	public SwiftConfiguration unmarshalConfig(String configPath) {
+	public FilesystemConfiguration unmarshalConfig(String configPath) {
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(SwiftConfiguration.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(FilesystemConfiguration.class);
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 			jaxbUnmarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
-			return (SwiftConfiguration) jaxbUnmarshaller.unmarshal(new StreamSource(new FileInputStream(configPath)), SwiftConfiguration.class).getValue();
+			return (FilesystemConfiguration) jaxbUnmarshaller.unmarshal(new StreamSource(new FileInputStream(configPath)), FilesystemConfiguration.class).getValue();
 		} catch(JAXBException je) {
 			je.printStackTrace();
 		} catch (FileNotFoundException e) {
@@ -202,7 +202,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 
 	@Override
 	public void pushProvenanceInformation(String authorName, String containerName) {
-		SwiftDriver driver = new SwiftDriver(config);
+		FilesystemDriver driver = new FilesystemDriver(config);
 
 		try {
 			driver.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE,
@@ -220,7 +220,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 
 	@Override
 	public void pushCatalog(SIRFCatalog catalog, String containerName) {
-		SwiftDriver driver = new SwiftDriver(config);
+		FilesystemDriver driver = new FilesystemDriver(config);
 
 		try {
 			SIRFCatalog existingCatalog = getCatalog();
@@ -248,7 +248,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 	@Override
 	public void pushPreservationObject(String poUUID, byte[] b) {
 		try {
-			SwiftDriver driver = new SwiftDriver(config);
+			FilesystemDriver driver = new FilesystemDriver(config);
 			driver.uploadObjectFromByteArray(config.getContainerName(), poUUID, b);
 			driver.close();
 		} catch(IOException ioe) {

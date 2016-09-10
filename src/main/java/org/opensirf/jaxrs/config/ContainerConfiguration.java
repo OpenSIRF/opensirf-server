@@ -4,7 +4,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlJavaTypeAdapter(ContainerConfigurationAdapter.class)
 
-
 // TODO: make abstract but still compatible with JAXB
 public class ContainerConfiguration {
 	
@@ -48,7 +47,7 @@ public class ContainerConfiguration {
 	private String endpoint;
 	
 	public enum Driver {
-		SWIFT("swift"), EXT4("ext4");
+		SWIFT("swift"), FILESYSTEM("fs");
 		
 		private String name;
 
