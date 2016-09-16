@@ -31,6 +31,7 @@
  */
 package org.opensirf.format;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -68,5 +69,10 @@ public class GenericUnmarshaller {
 	public static <T> T unmarshal(String mediaType, Path p, Class<T> clazz) throws JAXBException,
 			FileNotFoundException {
 		return unmarshal(mediaType, new FileInputStream(p.toFile()), clazz);
+	}
+	
+	public static <T> T unmarshal(String mediaType, String s, Class<T> clazz) throws JAXBException,
+			FileNotFoundException {
+		return unmarshal(mediaType, new ByteArrayInputStream(s.getBytes()), clazz);
 	}
 }
