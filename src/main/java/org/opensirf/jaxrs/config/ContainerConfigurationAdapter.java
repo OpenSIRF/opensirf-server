@@ -27,7 +27,6 @@ public class ContainerConfigurationAdapter extends
 			adaptedSirfConfig.endpoint = swiftConfig.getEndpoint();
 		} else if(sirfConfiguration instanceof FilesystemConfiguration) {
 			FilesystemConfiguration fsConfig = (FilesystemConfiguration) sirfConfiguration;
-			System.out.println("received sirfconfig, mountpoint == " + fsConfig.getMountPoint());
 			adaptedSirfConfig.containerName = fsConfig.getContainerName();
 			adaptedSirfConfig.driver = fsConfig.getDriver();
 			adaptedSirfConfig.endpoint = fsConfig.getEndpoint();
@@ -59,7 +58,6 @@ public class ContainerConfigurationAdapter extends
 			return swiftConfig;
 		} else if(adaptedSirfConfig.driver.equalsIgnoreCase(Driver.FILESYSTEM.toString())) {
 			FilesystemConfiguration fsConfig = new FilesystemConfiguration();
-			System.out.println("received sirfconfig2, mountpoint == " + adaptedSirfConfig.mountPoint);
 			fsConfig.setMountPoint(adaptedSirfConfig.mountPoint);
 			fsConfig.setContainerName(adaptedSirfConfig.containerName);
 			fsConfig.setDriver(adaptedSirfConfig.driver);

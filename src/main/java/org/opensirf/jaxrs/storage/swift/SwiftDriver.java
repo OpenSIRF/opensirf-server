@@ -55,8 +55,8 @@ import org.jclouds.openstack.swift.v1.features.ContainerApi;
 import org.jclouds.openstack.swift.v1.features.ObjectApi;
 import org.jclouds.openstack.swift.v1.options.CreateContainerOptions;
 import org.jclouds.openstack.swift.v1.options.PutOptions;
+import org.opensirf.container.MagicObject;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
-import org.opensirf.jaxrs.model.MagicObject;
 import org.opensirf.jaxrs.storage.ISirfDriver;
 
 import com.google.common.collect.ImmutableMap;
@@ -85,7 +85,7 @@ public class SwiftDriver implements ISirfDriver {
 				buildView(BlobStoreContext.class);
 	}
 
-	public void createContainer(String containerName) {
+	public void createContainerAndMagicObject(String containerName) {
 		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
 		CreateContainerOptions options = CreateContainerOptions.Builder.metadata(ImmutableMap.
 				of("containerSpecification", "1.0", "sirfLevel", "1", "sirfCatalogId", "catalog.json"));

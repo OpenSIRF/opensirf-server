@@ -29,27 +29,35 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
+package org.opensirf.format;
 
-package org.opensirf.jaxrs.api;
+import java.io.StringWriter;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
-import org.junit.Test;
-import org.opensirf.jaxrs.config.SIRFConfiguration;
-import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
-import org.opensirf.jaxrs.storage.AbstractStrategyFactory;
-import org.opensirf.jaxrs.storage.IStorageContainerStrategy;
+import org.eclipse.persistence.jaxb.MarshallerProperties;
 
-public class SwiftStrategyTest {
-
-	@Test
-	public void testPushPo() throws IOException {
-		String s = new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json")));
-		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().unmarshalConfig(s);
-		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		byte[] b = "Hello 123".getBytes();
-		strat.pushPreservationObject("aaaa", b);
+public class GenericMarshaller {
+	private static <T> Marshaller createMarshaller(String mediaType, Class<T> clazz) {
+		try	{
+			JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+			jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, mediaType);
+			jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
+			return jaxbMarshaller;
+		}
+		catch(JAXBException je) {
+			je.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static <T> String marshal(String mediaType, T t) throws JAXBException {
+		StringWriter w = new StringWriter();
+		Marshaller m = createMarshaller(mediaType, t.getClass());
+		m.marshal(t, w);
+		return w.toString();
 	}
 }

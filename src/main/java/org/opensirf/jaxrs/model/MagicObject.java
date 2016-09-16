@@ -38,11 +38,19 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+@Deprecated
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MagicObject {
 	public MagicObject() { }
 	
+	public MagicObject(String containerSpecification, String sirfLevel, String sirfCatalogId) {
+		super();
+		this.containerSpecification = containerSpecification;
+		this.sirfLevel = sirfLevel;
+		this.sirfCatalogId = sirfCatalogId;
+	}
+
 	public MagicObject(Map<String,String> metadata)
 	{
 		sirfCatalogId = metadata.get("sirfcatalogid");

@@ -41,6 +41,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 import org.opensirf.catalog.SIRFCatalog;
 
+@Deprecated
 public class SIRFCatalogUnmarshaller {
 	public SIRFCatalogUnmarshaller(String mediaType) {
 		try

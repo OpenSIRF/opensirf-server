@@ -38,7 +38,7 @@ import java.io.InputStream;
 import java.util.Set;
 
 import org.jclouds.openstack.swift.v1.domain.Container;
-import org.opensirf.jaxrs.model.MagicObject;
+import org.opensirf.container.MagicObject;
 
 /**
  * @author pviana
@@ -46,7 +46,7 @@ import org.opensirf.jaxrs.model.MagicObject;
  */
 public interface ISirfDriver extends Closeable {
 
-	void createContainer(String containerName);
+	void createContainerAndMagicObject(String containerName);
 
 	MagicObject containerMetadata(String containerName);
 

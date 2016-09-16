@@ -1,7 +1,7 @@
 /*
  * OpenSIRF JAX-RS
  * 
- * Copyright IBM Corporation 2015.
+ * Copyright IBM Corporation 2016.
  * All Rights Reserved.
  * 
  * MIT License:
@@ -29,27 +29,32 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
+package org.opensirf.format;
 
-package org.opensirf.jaxrs.api;
-
-import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.Test;
+import org.opensirf.container.MagicObject;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
-import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
-import org.opensirf.jaxrs.storage.AbstractStrategyFactory;
-import org.opensirf.jaxrs.storage.IStorageContainerStrategy;
 
-public class SwiftStrategyTest {
-
+/**
+ * @author pviana
+ *
+ */
+public class FormatTest {
+//	@Test
+//	public void unmarshalMagicObject() throws Exception {
+//		String moLocation = "/var/lib/sirf/storage/philContainer/magic.json";
+//		Path p = Paths.get(moLocation);
+//		GenericUnmarshaller.unmarshal("application/json", p, MagicObject.class);
+//	}
+//	
 	@Test
-	public void testPushPo() throws IOException {
-		String s = new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json")));
-		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().unmarshalConfig(s);
-		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		byte[] b = "Hello 123".getBytes();
-		strat.pushPreservationObject("aaaa", b);
+	public void unmarshalConfig() throws Exception {
+		String configLocation = "/var/lib/sirf/conf.json";
+		Path p = Paths.get(configLocation);
+		SIRFConfiguration s = GenericUnmarshaller.unmarshal("application/json", p, SIRFConfiguration.class);
+		System.out.println(GenericMarshaller.marshal("application/json", s));
 	}
 }

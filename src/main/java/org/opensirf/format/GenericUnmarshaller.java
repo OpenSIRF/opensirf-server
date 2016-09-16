@@ -29,27 +29,44 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
+package org.opensirf.format;
 
-package org.opensirf.jaxrs.api;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.file.Path;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
-import org.junit.Test;
-import org.opensirf.jaxrs.config.SIRFConfiguration;
-import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
-import org.opensirf.jaxrs.storage.AbstractStrategyFactory;
-import org.opensirf.jaxrs.storage.IStorageContainerStrategy;
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
-public class SwiftStrategyTest {
+public class GenericUnmarshaller {
+	private static <T> Unmarshaller createUnmarshaller(String mediaType, Class<T> clazz) {
+		try	{
+			JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		    jaxbUnmarshaller.setListener(new VersionIdentifierListener());
+			jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, mediaType);
+			jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
+			return jaxbUnmarshaller;
+		}
+		catch(JAXBException je) {
+			je.printStackTrace();
+			return null;
+		}
+	}
 
-	@Test
-	public void testPushPo() throws IOException {
-		String s = new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json")));
-		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().unmarshalConfig(s);
-		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		byte[] b = "Hello 123".getBytes();
-		strat.pushPreservationObject("aaaa", b);
+	public static <T> T unmarshal(String mediaType, InputStream is, Class<T> clazz)
+			throws JAXBException {
+		Unmarshaller u = createUnmarshaller(mediaType, clazz);
+		return (T) u.unmarshal(new StreamSource(is), clazz).getValue();
+	}
+	
+	public static <T> T unmarshal(String mediaType, Path p, Class<T> clazz) throws JAXBException,
+			FileNotFoundException {
+		return unmarshal(mediaType, new FileInputStream(p.toFile()), clazz);
 	}
 }

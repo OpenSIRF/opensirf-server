@@ -17,16 +17,16 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.opensirf.catalog.SIRFCatalog;
+import org.opensirf.container.MagicObject;
 import org.opensirf.container.ProvenanceInformation;
 import org.opensirf.container.SIRFContainer;
 import org.opensirf.format.ProvenanceInformationMarshaller;
 import org.opensirf.format.SIRFCatalogMarshaller;
 import org.opensirf.format.SIRFCatalogUnmarshaller;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
-import org.opensirf.jaxrs.model.MagicObject;
-import org.opensirf.jaxrs.storage.StorageContainerStrategy;
+import org.opensirf.jaxrs.storage.IStorageContainerStrategy;
 
-public class SwiftStrategy implements StorageContainerStrategy {
+public class SwiftStrategy implements IStorageContainerStrategy {
 	protected SwiftStrategy() {
 		
 	}
@@ -64,7 +64,7 @@ public class SwiftStrategy implements StorageContainerStrategy {
 		try {
 			SwiftDriver driver = new SwiftDriver(config);
 			System.out.println("Calling driver, container name = " + containerName);
-			driver.createContainer(containerName);
+			driver.createContainerAndMagicObject(containerName);
 			driver.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -206,8 +206,8 @@ public class SwiftStrategy implements StorageContainerStrategy {
 
 		try {
 			driver.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE,
-					new ProvenanceInformationMarshaller("application/json")
-							.marshalProvenanceInformation(new ProvenanceInformation(authorName)));
+				new ProvenanceInformationMarshaller("application/json")
+				.marshalProvenanceInformation(new ProvenanceInformation(authorName)));
 
 			driver.close();
 

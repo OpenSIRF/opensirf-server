@@ -1,7 +1,7 @@
 /*
  * OpenSIRF JAX-RS
  * 
- * Copyright IBM Corporation 2015.
+ * Copyright IBM Corporation 2016.
  * All Rights Reserved.
  * 
  * MIT License:
@@ -29,23 +29,16 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package org.opensirf.jaxrs.api;
+package org.opensirf.jaxrs.config;
 
-import java.util.HashSet;
-import java.util.Set;
+/**
+ * @author pviana
+ *
+ */
+public class SirfConfigurationException extends RuntimeException {
+	private static final long serialVersionUID = 1L;
 
-import javax.ws.rs.core.Application;
-
-import org.glassfish.jersey.filter.LoggingFilter;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-
-public class MPRegistration extends Application {
-	@Override
-	public Set<Class<?>> getClasses() {
-		final Set<Class<?>> classes = new HashSet<Class<?>>();
-		// register resources and features
-		classes.add(MultiPartFeature.class);
-		classes.add(LoggingFilter.class);
-		return classes;
+	public SirfConfigurationException(String message) {
+		super(message);
 	}
 }

@@ -17,58 +17,52 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.opensirf.catalog.SIRFCatalog;
+import org.opensirf.container.MagicObject;
 import org.opensirf.container.ProvenanceInformation;
 import org.opensirf.container.SIRFContainer;
 import org.opensirf.format.ProvenanceInformationMarshaller;
 import org.opensirf.format.SIRFCatalogMarshaller;
 import org.opensirf.format.SIRFCatalogUnmarshaller;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
-import org.opensirf.jaxrs.model.MagicObject;
-import org.opensirf.jaxrs.storage.StorageContainerStrategy;
+import org.opensirf.jaxrs.config.SirfConfigurationException;
+import org.opensirf.jaxrs.storage.IStorageContainerStrategy;
 
-public class FilesystemStrategy implements StorageContainerStrategy {
+public class FilesystemStrategy implements IStorageContainerStrategy {
 	protected FilesystemStrategy() {
 		
 	}
 	
-	public FilesystemStrategy(ContainerConfiguration c) { 
-		this.config = c;
+	public FilesystemStrategy(ContainerConfiguration c) {
+		setConfig(c);
 	}
 	
 	public void setConfig(ContainerConfiguration c) {
-		this.config = c;
+		try {
+			this.config = (FilesystemConfiguration) c;
+		} catch(ClassCastException cce) {
+			throw new SirfConfigurationException("Object casting exception: filesystem configuration "
+				+ "expected, but " + c.getClass().getSimpleName() + " was given. Please check the "
+				+ "configuration.");
+		}
 	}
 
 	public ContainerConfiguration getConfig() {
 		return config;
 	}
 
-	private ContainerConfiguration config;
-
 	@Override
 	public MagicObject retrieveMagicObject() {
-		try {
-			FilesystemDriver driver = new FilesystemDriver(config);
-			MagicObject mo = driver.containerMetadata(config.getContainerName());
-			driver.close();
-			return mo;
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} 
-		
-		return null;
+		FilesystemDriver driver = new FilesystemDriver(config);
+		MagicObject mo = driver.getMagicObject(config.getMountPoint() + "/" + config.getContainerName());
+		driver.close();
+		return mo;
 	}
 
 	@Override
 	public void createContainer(String containerName) {
-		try {
-			FilesystemDriver driver = new FilesystemDriver(config);
-			System.out.println("Calling driver, container name = " + containerName);
-			driver.createContainer(containerName);
-			driver.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+		FilesystemDriver driver = new FilesystemDriver(config);
+		driver.createContainerAndMagicObject(config.getMountPoint() + "/" + containerName);
+		driver.close();
 	}
 
 	@Override
@@ -85,12 +79,8 @@ public class FilesystemStrategy implements StorageContainerStrategy {
 	public void deleteContainer() {
 		FilesystemDriver driver = new FilesystemDriver(config);
 
-		try {
-			driver.deleteContainer(config.getContainerName());
-			driver.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+		driver.deleteContainer(config.getContainerName());
+		driver.close();
 	}
 
 	@Override
@@ -144,13 +134,9 @@ public class FilesystemStrategy implements StorageContainerStrategy {
 
 	@Override
 	public void deletePreservationObject(String poName) {
-		try {
-			FilesystemDriver driver = new FilesystemDriver(config);
-			driver.deleteObject(config.getContainerName(), poName);
-			driver.close();
-		} catch(IOException ioe) {
-			ioe.printStackTrace();
-		}
+		FilesystemDriver driver = new FilesystemDriver(config);
+		driver.deleteObject(config.getContainerName(), poName);
+		driver.close();
 	}
 
 	@Override
@@ -190,7 +176,8 @@ public class FilesystemStrategy implements StorageContainerStrategy {
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 			jaxbUnmarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
-			return (FilesystemConfiguration) jaxbUnmarshaller.unmarshal(new StreamSource(new FileInputStream(configPath)), FilesystemConfiguration.class).getValue();
+			return (FilesystemConfiguration) jaxbUnmarshaller.unmarshal(new StreamSource(
+				new FileInputStream(configPath)), FilesystemConfiguration.class).getValue();
 		} catch(JAXBException je) {
 			je.printStackTrace();
 		} catch (FileNotFoundException e) {
@@ -202,17 +189,18 @@ public class FilesystemStrategy implements StorageContainerStrategy {
 
 	@Override
 	public void pushProvenanceInformation(String authorName, String containerName) {
+		System.out.println("Pushing provenance..." + config.getMountPoint());
+		String containerPath = config.getMountPoint() + "/" + containerName;
+		System.out.println("Pushing provenance..." + containerPath);
 		FilesystemDriver driver = new FilesystemDriver(config);
 
 		try {
-			driver.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE,
-					new ProvenanceInformationMarshaller("application/json")
-							.marshalProvenanceInformation(new ProvenanceInformation(authorName)));
+			driver.uploadObjectFromString(containerPath,
+				SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE,
+				new ProvenanceInformationMarshaller("application/json")
+				.marshalProvenanceInformation(new ProvenanceInformation(authorName)));
 
 			driver.close();
-
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
 		} catch (JAXBException jbe) {
 			jbe.printStackTrace();
 		}
@@ -221,6 +209,7 @@ public class FilesystemStrategy implements StorageContainerStrategy {
 	@Override
 	public void pushCatalog(SIRFCatalog catalog, String containerName) {
 		FilesystemDriver driver = new FilesystemDriver(config);
+		String containerPath = config.getMountPoint() + "/" + containerName;
 
 		try {
 			SIRFCatalog existingCatalog = getCatalog();
@@ -235,11 +224,9 @@ public class FilesystemStrategy implements StorageContainerStrategy {
 			
 			// TODO: else throw exception; number of POs can only change via a PO upload
 			
-			driver.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID,
+			driver.uploadObjectFromString(containerPath, SIRFContainer.SIRF_DEFAULT_CATALOG_ID,
 					new SIRFCatalogMarshaller("application/json").marshalCatalog(catalog));
 			driver.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
 		} catch (JAXBException jbe) {
 			jbe.printStackTrace();
 		}
@@ -247,12 +234,10 @@ public class FilesystemStrategy implements StorageContainerStrategy {
 
 	@Override
 	public void pushPreservationObject(String poUUID, byte[] b) {
-		try {
-			FilesystemDriver driver = new FilesystemDriver(config);
-			driver.uploadObjectFromByteArray(config.getContainerName(), poUUID, b);
-			driver.close();
-		} catch(IOException ioe) {
-			ioe.printStackTrace();
-		}
+		FilesystemDriver driver = new FilesystemDriver(config);
+		driver.uploadObjectFromByteArray(config.getContainerName(), poUUID, b);
+		driver.close();
 	}
+
+	private FilesystemConfiguration config;
 }

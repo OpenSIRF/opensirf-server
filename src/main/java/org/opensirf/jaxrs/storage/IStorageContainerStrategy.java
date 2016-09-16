@@ -5,10 +5,10 @@ import java.io.InputStream;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.opensirf.catalog.SIRFCatalog;
+import org.opensirf.container.MagicObject;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
-import org.opensirf.jaxrs.model.MagicObject;
 
-public interface StorageContainerStrategy {
+public interface IStorageContainerStrategy {
 	
 	public ContainerConfiguration getConfig();
 	

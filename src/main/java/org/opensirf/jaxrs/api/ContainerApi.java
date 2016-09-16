@@ -50,12 +50,12 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opensirf.catalog.SIRFCatalog;
+import org.opensirf.container.MagicObject;
 import org.opensirf.container.SIRFContainer;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
-import org.opensirf.jaxrs.model.MagicObject;
 import org.opensirf.jaxrs.storage.AbstractStrategyFactory;
-import org.opensirf.jaxrs.storage.StorageContainerStrategy;
+import org.opensirf.jaxrs.storage.IStorageContainerStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +79,7 @@ public class ContainerApi {
 		try {
 			SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
-			StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
+			IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 			MagicObject c = strat.retrieveMagicObject();
 			
 			return c;
@@ -96,7 +96,7 @@ public class ContainerApi {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(
     			SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
-    	StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
+    	IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 
 		SIRFContainer container = new SIRFContainer(containerName);
 		strat.createContainer(containerName);
@@ -112,7 +112,7 @@ public class ContainerApi {
 	public Response deleteContainer(@PathParam("containername") String containerName) throws IOException {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
 			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
-		StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
+		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		strat.deleteContainer();
 
 		return Response.ok().build();
@@ -124,7 +124,7 @@ public class ContainerApi {
 	public SIRFCatalog getCatalog(@PathParam("containername") String containerName) throws IOException {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
 			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
-		StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
+		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		SIRFCatalog c = strat.getCatalog();
 		return c;
 	}
@@ -133,17 +133,14 @@ public class ContainerApi {
 	@Path("container/{containername}/catalog")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response updateCatalog(@PathParam("containername") String containerName, 
-			@FormDataParam("catalog") SIRFCatalog catalog) throws IOException, URISyntaxException {
-		log.info("Unmarshalling config...");
+			@FormDataParam("catalog") SIRFCatalog cat) throws IOException, URISyntaxException {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(
     			SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
-		log.info("Creating strategy...");
-    	StorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-    	log.info("Pushing catalog...");
-		strat.pushCatalog(catalog, containerName);
-
-		log.info("Sending response...");
+	    
+    	IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
+		strat.pushCatalog(cat, containerName);
 		return Response.ok(new URI("sirf/container/" + containerName + "/catalog")).build();
 	}
+	
 }

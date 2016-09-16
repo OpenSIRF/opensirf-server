@@ -40,6 +40,7 @@ import javax.xml.bind.Marshaller;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.opensirf.catalog.SIRFCatalog;
 
+@Deprecated
 public class SIRFCatalogMarshaller {
 	public SIRFCatalogMarshaller(String mediaType) {
 		try
@@ -56,6 +57,9 @@ public class SIRFCatalogMarshaller {
 	
 	public String marshalCatalog(SIRFCatalog c) throws JAXBException {
 		StringWriter w = new StringWriter();
+		System.out.println("Printing sirfcatalog");
+		System.out.println(c.getCatalogId());
+		System.out.println(c.getSirfObjects().getMap().size());
 		jaxbMarshaller.marshal(c,w);
 		return w.toString();
 	}
