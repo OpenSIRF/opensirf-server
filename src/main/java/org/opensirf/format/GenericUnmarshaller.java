@@ -43,6 +43,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
+import org.opensirf.jaxrs.storage.SirfStorageException;
 
 public class GenericUnmarshaller {
 	private static <T> Unmarshaller createUnmarshaller(String mediaType, Class<T> clazz) {
@@ -53,26 +54,34 @@ public class GenericUnmarshaller {
 			jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, mediaType);
 			jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
 			return jaxbUnmarshaller;
-		}
-		catch(JAXBException je) {
+		} catch(JAXBException je) {
 			je.printStackTrace();
 			return null;
 		}
 	}
 
-	public static <T> T unmarshal(String mediaType, InputStream is, Class<T> clazz)
-			throws JAXBException {
+	public static <T> T unmarshal(String mediaType, InputStream is, Class<T> clazz) {
 		Unmarshaller u = createUnmarshaller(mediaType, clazz);
-		return (T) u.unmarshal(new StreamSource(is), clazz).getValue();
+		try {
+			return (T) u.unmarshal(new StreamSource(is), clazz).getValue();
+		} catch (JAXBException e) {
+			e.printStackTrace();
+			throw new SirfFormatException("JAXB exception unmarshalling " + clazz.getSimpleName() + 
+					". Please check the request and the contents of the requested object.");
+		}
 	}
 	
-	public static <T> T unmarshal(String mediaType, Path p, Class<T> clazz) throws JAXBException,
-			FileNotFoundException {
-		return unmarshal(mediaType, new FileInputStream(p.toFile()), clazz);
+	public static <T> T unmarshal(String mediaType, Path p, Class<T> clazz) {
+		try {
+			return unmarshal(mediaType, new FileInputStream(p.toFile()), clazz);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			throw new SirfStorageException("FileNotFound exception unmarshalling " +
+					clazz.getSimpleName() + ". Please check that the file exists.");
+		}
 	}
 	
-	public static <T> T unmarshal(String mediaType, String s, Class<T> clazz) throws JAXBException,
-			FileNotFoundException {
+	public static <T> T unmarshal(String mediaType, String s, Class<T> clazz) {
 		return unmarshal(mediaType, new ByteArrayInputStream(s.getBytes()), clazz);
 	}
 }

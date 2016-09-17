@@ -35,6 +35,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -52,6 +53,7 @@ import org.opensirf.format.GenericMarshaller;
 import org.opensirf.format.GenericUnmarshaller;
 import org.opensirf.format.SirfFormatException;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
+import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.storage.SirfStorageException;
 
 public class FilesystemDriver implements Closeable {	
@@ -94,15 +96,7 @@ public class FilesystemDriver implements Closeable {
 	public MagicObject getMagicObject(String containerPath) {
 		String magicObjectPath = containerPath + "/" + "magic.json";
 		Path moPath = Paths.get(magicObjectPath);
-		try {
-			return GenericUnmarshaller.unmarshal("application/json", moPath, MagicObject.class);
-		} catch(IOException ioe) {
-			throw new SirfStorageException("IO exception trying to read magic object from " + 
-				magicObjectPath + ". Please check the container contents.");
-		} catch(JAXBException jbe) {
-			throw new SirfFormatException("JAXB exception trying to unmarshal the magic object from "
-				+ magicObjectPath + ". Please check the magic object in the container.");
-		}
+		return GenericUnmarshaller.unmarshal("application/json", moPath, MagicObject.class);
 	}
 
 	public void uploadObjectFromFile(String swiftContainerName, String fileName) {
@@ -117,8 +111,8 @@ public class FilesystemDriver implements Closeable {
 	}
 
 	public InputStream getFileInputStream(String container, String filename) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return new FileInputStream(new File(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "/storage/" +
+				container + "/" + filename));
 	}
 
 	public void uploadObjectFromString(String containerPath, String fileName, String content) {
@@ -163,11 +157,6 @@ public class FilesystemDriver implements Closeable {
 		// TODO Auto-generated method stub
 		
 	}
-
-	public Set<Container> listContainers() {
-		// TODO Auto-generated method stub
-		return null;
-	}	
 
 	private final FilesystemConfiguration fsConfig;
 }
