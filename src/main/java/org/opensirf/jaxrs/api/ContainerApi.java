@@ -113,7 +113,7 @@ public class ContainerApi {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
 			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
 		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		strat.deleteContainer();
+		strat.deleteContainer(containerName);
 
 		return Response.ok().build();
 	}

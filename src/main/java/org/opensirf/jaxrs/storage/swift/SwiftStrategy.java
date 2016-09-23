@@ -82,18 +82,6 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 	}
 
 	@Override
-	public void deleteContainer() {
-		SwiftDriver driver = new SwiftDriver(config);
-
-		try {
-			driver.deleteContainer(config.getContainerName());
-			driver.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-	}
-
-	@Override
 	public SIRFCatalog getCatalog() {
 		SIRFCatalog catalog = null;
 
@@ -102,6 +90,7 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 			InputStream is = driver.getFileInputStream(config.getContainerName(), SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
 			
 			catalog = new SIRFCatalogUnmarshaller("application/json").unmarshalCatalog(is);
+			is.close();
 			driver.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -132,6 +121,7 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 				}
 			};
 			
+			is.close();
 			driver.close();
 			
 		} catch (IOException ioe) {
@@ -254,5 +244,34 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 		} catch(IOException ioe) {
 			ioe.printStackTrace();
 		}
+	}
+
+	@Override
+	public void deleteContainer(String containerName) {
+		SwiftDriver driver = new SwiftDriver(config);
+
+		try {
+			driver.deleteContainer(containerName);
+			driver.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.opensirf.jaxrs.storage.IStorageContainerStrategy#deleteContainer(java.lang.String)
+	 */
+	@Override
+	public void deleteContainer() {
+		deleteContainer(config.getContainerName());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.io.Closeable#close()
+	 */
+	@Override
+	public void close() throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

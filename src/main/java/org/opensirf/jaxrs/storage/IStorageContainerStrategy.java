@@ -1,5 +1,6 @@
 package org.opensirf.jaxrs.storage;
 
+import java.io.Closeable;
 import java.io.InputStream;
 
 import javax.ws.rs.core.StreamingOutput;
@@ -8,7 +9,7 @@ import org.opensirf.catalog.SIRFCatalog;
 import org.opensirf.container.MagicObject;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 
-public interface IStorageContainerStrategy {
+public interface IStorageContainerStrategy extends Closeable {
 	
 	public ContainerConfiguration getConfig();
 	
@@ -29,6 +30,8 @@ public interface IStorageContainerStrategy {
 	public void pushCatalog(SIRFCatalog catalog, String containerName);
 
 	public void deleteContainer();
+	
+	public void deleteContainer(String containerName);
 
 	public void deletePreservationObject(String poName);
 	

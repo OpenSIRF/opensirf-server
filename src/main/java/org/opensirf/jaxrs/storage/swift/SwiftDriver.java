@@ -35,14 +35,11 @@ package org.opensirf.jaxrs.storage.swift;
 import static com.google.common.io.ByteSource.wrap;
 import static org.jclouds.io.Payloads.newByteSourcePayload;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.io.Payload;
@@ -99,29 +96,29 @@ public class SwiftDriver implements ISirfDriver {
 		return new MagicObject(containerApi.get(containerName).getMetadata());
 	}
 
-	public void uploadObjectFromFile(String swiftContainerName, String fileName) {
-		try {
-			ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, swiftContainerName);
-			File file = new File(fileName);
-			FileInputStream fis = new FileInputStream(file);
-			byte[] fileBytes = new byte[(int) file.length()];
-			fis.read(fileBytes);
-			Payload payload = newByteSourcePayload(wrap(fileBytes));
-			fis.close();
+//	public void uploadObjectFromFile(String swiftContainerName, String fileName) {
+//		try {
+//			ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, swiftContainerName);
+//			File file = new File(fileName);
+//			FileInputStream fis = new FileInputStream(file);
+//			byte[] fileBytes = new byte[(int) file.length()];
+//			fis.read(fileBytes);
+//			Payload payload = newByteSourcePayload(wrap(fileBytes));
+//			fis.close();
+//
+//			objectApi.put(fileName, payload, PutOptions.Builder.metadata(ImmutableMap.of("key1", "value1")));
+//		} catch (IOException ioe) {
+//			ioe.printStackTrace();
+//		}
+//	}
 
-			objectApi.put(fileName, payload, PutOptions.Builder.metadata(ImmutableMap.of("key1", "value1")));
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-	}
-
-	public String downloadSmallObjectFromFile(String container, String filename) throws IOException {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, container);
-		SwiftObject fileObject = objectApi.get(filename);
-		InputStream is = fileObject.getPayload().openStream();
-
-		return IOUtils.toString(is);
-	}
+//	public String downloadSmallObjectFromFile(String container, String filename) throws IOException {
+//		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, container);
+//		SwiftObject fileObject = objectApi.get(filename);
+//		InputStream is = fileObject.getPayload().openStream();
+//
+//		return IOUtils.toString(is);
+//	}
 
 	public InputStream getFileInputStream(String container, String filename) throws IOException {
 		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, container);

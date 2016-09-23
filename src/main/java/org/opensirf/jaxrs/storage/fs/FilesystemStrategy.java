@@ -23,7 +23,6 @@ import org.opensirf.container.SIRFContainer;
 import org.opensirf.format.ProvenanceInformationMarshaller;
 import org.opensirf.format.SIRFCatalogMarshaller;
 import org.opensirf.format.SIRFCatalogUnmarshaller;
-import org.opensirf.jaxrs.api.ContainerApi;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.SirfConfigurationException;
 import org.opensirf.jaxrs.storage.IStorageContainerStrategy;
@@ -34,6 +33,8 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 
 	static final Logger log = LoggerFactory.getLogger(FilesystemStrategy.class); 
 
+	private InputStream poInputStream;
+	
 	protected FilesystemStrategy() {
 	}
 	
@@ -87,15 +88,6 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	}
 
 	@Override
-	public void deleteContainer() {
-		log.debug("ENTER deleteContainer()");
-		FilesystemDriver driver = new FilesystemDriver(config);
-
-		driver.deleteContainer(config.getContainerName());
-		driver.close();
-	}
-
-	@Override
 	public SIRFCatalog getCatalog() {
 		log.debug("ENTER getCatalog()");
 		SIRFCatalog catalog = null;
@@ -105,6 +97,7 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 			InputStream is = driver.getFileInputStream(config.getContainerName(), SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
 			
 			catalog = new SIRFCatalogUnmarshaller("application/json").unmarshalCatalog(is);
+			is.close();
 			driver.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -125,14 +118,14 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 		StreamingOutput so = null;
 		
 		try {
-			final InputStream is = driver.getFileInputStream(config.getContainerName(), poName);
+			poInputStream = driver.getFileInputStream(config.getContainerName(), poName);
 			
 			so = new StreamingOutput() {
 				public void write(OutputStream out) throws IOException, WebApplicationException {
                     int read = 0;
                     byte[] bytes = new byte[1024];
 
-                    while ((read = is.read(bytes)) != -1)
+                    while ((read = poInputStream.read(bytes)) != -1)
                         out.write(bytes, 0, read);
 				}
 			};
@@ -151,7 +144,8 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	public void deletePreservationObject(String poName) {
 		log.debug("ENTER deletePreservationObject()");
 		FilesystemDriver driver = new FilesystemDriver(config);
-		driver.deleteObject(config.getContainerName(), poName);
+		String containerPath = config.getMountPoint() + "/" + config.getContainerName();
+		driver.deleteFile(containerPath, poName);
 		driver.close();
 	}
 
@@ -209,9 +203,7 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	@Override
 	public void pushProvenanceInformation(String authorName, String containerName) {
 		log.debug("ENTER pushProvenanceInformation()");
-		System.out.println("Pushing provenance..." + config.getMountPoint());
 		String containerPath = config.getMountPoint() + "/" + containerName;
-		System.out.println("Pushing provenance..." + containerPath);
 		FilesystemDriver driver = new FilesystemDriver(config);
 
 		try {
@@ -257,9 +249,34 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	public void pushPreservationObject(String poUUID, byte[] b) {
 		log.debug("ENTER pushPreservationObject()");
 		FilesystemDriver driver = new FilesystemDriver(config);
-		driver.uploadObjectFromByteArray(config.getContainerName(), poUUID, b);
+		driver.uploadObjectFromByteArray(config.getMountPoint() + "/" + config.getContainerName(), poUUID, b);
 		driver.close();
 	}
 
 	private FilesystemConfiguration config;
+
+	/* (non-Javadoc)
+	 * @see org.opensirf.jaxrs.storage.IStorageContainerStrategy#deleteContainer(java.lang.String)
+	 */
+	@Override
+	public void deleteContainer() {
+		deleteContainer(config.getContainerName());
+	}
+
+	@Override
+	public void deleteContainer(String containerName) {
+		log.debug("ENTER deleteContainer()");
+		FilesystemDriver driver = new FilesystemDriver(config);
+
+		driver.deleteContainer(config.getMountPoint() + "/" + containerName);
+		driver.close();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.io.Closeable#close()
+	 */
+	@Override
+	public void close() throws IOException {
+		poInputStream.close();
+	}
 }

@@ -50,10 +50,6 @@ public interface ISirfDriver extends Closeable {
 
 	MagicObject containerMetadata(String containerName);
 
-	void uploadObjectFromFile(String swiftContainerName, String fileName);
-
-	String downloadSmallObjectFromFile(String container, String filename) throws IOException;
-
 	InputStream getFileInputStream(String container, String filename) throws IOException;
 
 	void uploadObjectFromString(String containerName, String fileName, String content);

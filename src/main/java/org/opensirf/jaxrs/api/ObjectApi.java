@@ -89,11 +89,15 @@ public class ObjectApi {
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
     	
 		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		
 		StreamingOutput so = strat.getPreservationObjectStreamingOutput(poName);
 		
-		return Response.ok(so)
-				.header("content-disposition","attachment;filename=" + poName).build();
+		Response r = Response.ok(so).header("content-disposition","attachment;filename=" + poName).
+				build();
+		
+		// TODO: fix potential memory leaks with inputstreams
+		//strat.close();
+		
+		return r;
 	}
 
 	@POST

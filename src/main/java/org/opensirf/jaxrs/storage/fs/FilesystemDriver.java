@@ -43,11 +43,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
-import org.jclouds.openstack.swift.v1.domain.Container;
+import org.apache.commons.io.FileUtils;
 import org.opensirf.container.MagicObject;
 import org.opensirf.format.GenericMarshaller;
 import org.opensirf.format.GenericUnmarshaller;
@@ -55,8 +54,13 @@ import org.opensirf.format.SirfFormatException;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.storage.SirfStorageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FilesystemDriver implements Closeable {	
+
+	static final Logger log = LoggerFactory.getLogger(FilesystemDriver.class); 
+
 	public FilesystemDriver(ContainerConfiguration config) {
 		fsConfig = (FilesystemConfiguration) config;
 	}
@@ -99,17 +103,6 @@ public class FilesystemDriver implements Closeable {
 		return GenericUnmarshaller.unmarshal("application/json", moPath, MagicObject.class);
 	}
 
-	public void uploadObjectFromFile(String swiftContainerName, String fileName) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public String downloadSmallObjectFromFile(String container, String filename)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public InputStream getFileInputStream(String container, String filename) throws IOException {
 		return new FileInputStream(new File(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "/storage/" +
 				container + "/" + filename));
@@ -148,14 +141,18 @@ public class FilesystemDriver implements Closeable {
 		} 
 	}
 
-	public void deleteContainer(String containerName) {
-		// TODO Auto-generated method stub
-		
+	public void deleteContainer(String containerPath) {
+		try {
+			log.debug("Deleting container on " + containerPath);
+			FileUtils.deleteDirectory(new File(containerPath));
+		} catch(IOException ioe) {
+			throw new SirfStorageException("IO exception trying to delete container on " +
+				containerPath + ". Please verify full path and the filesystem contents.");
+		}
 	}
 
-	public void deleteObject(String containerName, String objectName) {
-		// TODO Auto-generated method stub
-		
+	public void deleteFile(String containerPath, String objectName) {
+		new File(containerPath + "/" + objectName).delete();
 	}
 
 	private final FilesystemConfiguration fsConfig;
