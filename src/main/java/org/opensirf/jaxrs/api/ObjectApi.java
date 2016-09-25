@@ -75,7 +75,7 @@ public class ObjectApi {
 
 		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		
-		SIRFCatalog c = strat.getCatalog();
+		SIRFCatalog c = strat.getCatalog(containerName);
 		PreservationObjectInformation poi = null;
 		poi = c.getSirfObjects().get(poUUID);
 		return poi;
@@ -89,13 +89,13 @@ public class ObjectApi {
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
     	
 		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		StreamingOutput so = strat.getPreservationObjectStreamingOutput(poName);
+		StreamingOutput so = strat.getPreservationObjectStreamingOutput(poName, containerName);
 		
 		Response r = Response.ok(so).header("content-disposition","attachment;filename=" + poName).
 				build();
 		
 		// TODO: fix potential memory leaks with inputstreams
-		//strat.close();
+		// strat.close();
 		
 		return r;
 	}
@@ -103,7 +103,7 @@ public class ObjectApi {
 	@POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Path("container/{containername}/po")
-	public Response submitPO(@PathParam("containername") String container,
+	public Response submitPO(@PathParam("containername") String containerName,
 			@FormDataParam("poi") FormDataBodyPart poiBodyPart,
 			@FormDataParam("inputstream") InputStream inputStream)
 					throws IOException, URISyntaxException {
@@ -120,7 +120,7 @@ public class ObjectApi {
     	IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		
 		try {
-			SIRFCatalog catalog = strat.getCatalog();
+			SIRFCatalog catalog = strat.getCatalog(containerName);
 			
 			byte[] b = IOUtils.toByteArray(inputStream);
 			
@@ -128,14 +128,14 @@ public class ObjectApi {
 			DigestInformation di = new DigestInformation("ObjectApi", "SHA-1", sha1Hex);
 			poi.setObjectFixity(new FixityInformation(di));
 			catalog.getSirfObjects().put(poi);
-			strat.pushCatalog(catalog);
-			strat.pushPreservationObject(poi.getVersionIdentifierUUID(), b);
+			strat.pushCatalog(catalog, containerName);
+			strat.pushPreservationObject(poi.getVersionIdentifierUUID(), b, containerName);
 
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
 		
-		return Response.created(new URI("sirf/container/" + container + "/" +
+		return Response.created(new URI("sirf/container/" + containerName + "/" +
 				poi.getVersionIdentifierUUID())).build();
 	}
 	
@@ -162,9 +162,9 @@ public class ObjectApi {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
     	IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		SIRFCatalog catalog = strat.getCatalog();
+		SIRFCatalog catalog = strat.getCatalog(containerName);
 		catalog.getSirfObjects().remove(poName);
-		strat.pushCatalog(catalog);
+		strat.pushCatalog(catalog, containerName);
 
 		return Response.ok().build();
 	}
@@ -175,10 +175,10 @@ public class ObjectApi {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
     	IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		SIRFCatalog catalog = strat.getCatalog();
+		SIRFCatalog catalog = strat.getCatalog(containerName);
 		catalog.getSirfObjects().remove(poName);
-		strat.pushCatalog(catalog);
-		strat.deletePreservationObject(poName);
+		strat.pushCatalog(catalog, containerName);
+		strat.deletePreservationObject(poName, containerName);
 
 		return Response.ok().build();
 	}

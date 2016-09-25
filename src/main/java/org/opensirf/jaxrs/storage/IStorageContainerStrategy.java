@@ -14,31 +14,52 @@ public interface IStorageContainerStrategy extends Closeable {
 	public ContainerConfiguration getConfig();
 	
 	public void setConfig(ContainerConfiguration c);
+
+//	@Deprecated
+//	public MagicObject retrieveMagicObject();
 	
-	public MagicObject retrieveMagicObject();
+	public MagicObject retrieveMagicObject(String containerName);
 
 	public void createContainer(String containerName);
 
-	public void pushProvenanceInformation(String authorName);
+//	@Deprecated
+//	public void pushProvenanceInformation(String authorName);
 
-	public void pushPreservationObject(String poUUID, byte[] b);
+//	@Deprecated
+//	public void pushPreservationObject(String poUUID, byte[] b);
 
-	public void pushCatalog(SIRFCatalog catalog);
+	public void pushPreservationObject(String poUUID, byte[] b, String containerName);
+
+//	@Deprecated
+//	public void pushCatalog(SIRFCatalog catalog);
 	
 	public void pushProvenanceInformation(String authorName, String containerName);
 
 	public void pushCatalog(SIRFCatalog catalog, String containerName);
 
-	public void deleteContainer();
+//	@Deprecated
+//	public void deleteContainer();
 	
 	public void deleteContainer(String containerName);
 
-	public void deletePreservationObject(String poName);
+//	@Deprecated
+//	public void deletePreservationObject(String poName);
+
+	public void deletePreservationObject(String poName, String containerName);
+
+//	@Deprecated
+//	public SIRFCatalog getCatalog();
 	
-	public SIRFCatalog getCatalog();
+	public SIRFCatalog getCatalog(String containerName);
 	
-	public StreamingOutput getPreservationObjectStreamingOutput(String poUUID);
+//	@Deprecated
+//	public StreamingOutput getPreservationObjectStreamingOutput(String poUUID);
 	
-	public InputStream getPreservationObjectInputStream(String poUUID);
+//	@Deprecated
+//	public InputStream getPreservationObjectInputStream(String poUUID);
+	
+	public StreamingOutput getPreservationObjectStreamingOutput(String poUUID, String containerName);
+	
+	public InputStream getPreservationObjectInputStream(String poUUID, String containerName);
 }
 

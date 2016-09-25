@@ -50,6 +50,6 @@ public class SwiftStrategyTest {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().unmarshalConfig(s);
 		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		byte[] b = "Hello 123".getBytes();
-		strat.pushPreservationObject("aaaa", b);
+		strat.pushPreservationObject("aaaa", b, config.getContainerConfiguration().getContainerName());
 	}
 }

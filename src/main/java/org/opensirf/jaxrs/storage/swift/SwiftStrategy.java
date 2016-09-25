@@ -46,10 +46,10 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 	private ContainerConfiguration config;
 
 	@Override
-	public MagicObject retrieveMagicObject() {
+	public MagicObject retrieveMagicObject(String containerName) {
 		try {
 			SwiftDriver driver = new SwiftDriver(config);
-			MagicObject mo = driver.containerMetadata(config.getContainerName());
+			MagicObject mo = driver.containerMetadata(containerName);
 			driver.close();
 			return mo;
 		} catch (IOException ioe) {
@@ -72,22 +72,12 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 	}
 
 	@Override
-	public void pushProvenanceInformation(String authorName) {
-		pushProvenanceInformation(authorName, config.getContainerName());
-	}
-
-	@Override
-	public void pushCatalog(SIRFCatalog catalog) {
-		pushCatalog(catalog, config.getContainerName());
-	}
-
-	@Override
-	public SIRFCatalog getCatalog() {
+	public SIRFCatalog getCatalog(String containerName) {
 		SIRFCatalog catalog = null;
 
 		try {
 			SwiftDriver driver = new SwiftDriver(config);
-			InputStream is = driver.getFileInputStream(config.getContainerName(), SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
+			InputStream is = driver.getFileInputStream(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID);
 			
 			catalog = new SIRFCatalogUnmarshaller("application/json").unmarshalCatalog(is);
 			is.close();
@@ -104,12 +94,12 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 	}
 
 	@Override
-	public StreamingOutput getPreservationObjectStreamingOutput(String poName) {
+	public StreamingOutput getPreservationObjectStreamingOutput(String containerName, String poName) {
 		SwiftDriver driver = new SwiftDriver(config);
 		StreamingOutput so = null;
 		
 		try {
-			final InputStream is = driver.getFileInputStream(config.getContainerName(), poName);
+			final InputStream is = driver.getFileInputStream(containerName, poName);
 			
 			so = new StreamingOutput() {
 				public void write(OutputStream out) throws IOException, WebApplicationException {
@@ -133,10 +123,10 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 
 
 	@Override
-	public void deletePreservationObject(String poName) {
+	public void deletePreservationObject(String poName, String containerName) {
 		try {
 			SwiftDriver driver = new SwiftDriver(config);
-			driver.deleteObject(config.getContainerName(), poName);
+			driver.deleteObject(containerName, poName);
 			driver.close();
 		} catch(IOException ioe) {
 			ioe.printStackTrace();
@@ -144,10 +134,10 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 	}
 
 	@Override
-	public InputStream getPreservationObjectInputStream(String poUUID) {
+	public InputStream getPreservationObjectInputStream(String containerName, String poUUID) {
 		try {
 			SwiftDriver driver = new SwiftDriver(config);
-			InputStream is = driver.getFileInputStream(config.getContainerName(), poUUID);
+			InputStream is = driver.getFileInputStream(containerName, poUUID);
 			driver.close();
 			return is;
 		} catch(IOException ioe) {
@@ -213,7 +203,7 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 		SwiftDriver driver = new SwiftDriver(config);
 
 		try {
-			SIRFCatalog existingCatalog = getCatalog();
+			SIRFCatalog existingCatalog = getCatalog(containerName);
 			
 			// Only metadata updates
 			if(existingCatalog != null && existingCatalog.getSirfObjects() != null) {					
@@ -236,10 +226,10 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 	}
 
 	@Override
-	public void pushPreservationObject(String poUUID, byte[] b) {
+	public void pushPreservationObject(String poUUID, byte[] b, String containerName) {
 		try {
 			SwiftDriver driver = new SwiftDriver(config);
-			driver.uploadObjectFromByteArray(config.getContainerName(), poUUID, b);
+			driver.uploadObjectFromByteArray(containerName, poUUID, b);
 			driver.close();
 		} catch(IOException ioe) {
 			ioe.printStackTrace();
@@ -258,14 +248,6 @@ public class SwiftStrategy implements IStorageContainerStrategy {
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.opensirf.jaxrs.storage.IStorageContainerStrategy#deleteContainer(java.lang.String)
-	 */
-	@Override
-	public void deleteContainer() {
-		deleteContainer(config.getContainerName());
-	}
-
 	/* (non-Javadoc)
 	 * @see java.io.Closeable#close()
 	 */

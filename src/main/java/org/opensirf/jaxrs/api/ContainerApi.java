@@ -80,7 +80,7 @@ public class ContainerApi {
 			SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
 			IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-			MagicObject c = strat.retrieveMagicObject();
+			MagicObject c = strat.retrieveMagicObject(containerName);
 			
 			return c;
 		} catch (IOException ioe) {
@@ -125,7 +125,7 @@ public class ContainerApi {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
 			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
 		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		SIRFCatalog c = strat.getCatalog();
+		SIRFCatalog c = strat.getCatalog(containerName);
 		return c;
 	}
 	
