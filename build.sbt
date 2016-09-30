@@ -27,10 +27,15 @@ credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 publishMavenStyle := false
 isSnapshot := true
 
+unmanagedClasspath in Test += baseDirectory.value / "WebContent" / "WEB-INF" / "classes"
+
+fork in Test := true
+
 publishArtifact in (Compile, packageDoc) := false
 publishArtifact in (Compile, packageSrc) := false
 
 libraryDependencies += "org.opensirf" % "opensirf-core" % "1.0.0" changing()
+libraryDependencies += "com.novocode" % "junit-interface" % "0.4" % "test"
 
 resolvers += Resolver.url("SIRF Artifactory", url("http://200.144.189.109:58082/artifactory"))(Resolver.ivyStylePatterns)
 

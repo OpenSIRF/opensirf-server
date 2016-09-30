@@ -4,10 +4,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.opensirf.jaxrs.storage.fs.FilesystemConfiguration;
+import org.opensirf.jaxrs.storage.multicontainer.MultiContainerConfiguration;
 import org.opensirf.jaxrs.storage.swift.SwiftConfiguration;
 
 @XmlRootElement
-@XmlSeeAlso({ SwiftConfiguration.class, FilesystemConfiguration.class })
+@XmlSeeAlso({ SwiftConfiguration.class, FilesystemConfiguration.class, MultiContainerConfiguration.class })
 public class SIRFConfiguration {
 	private ContainerConfiguration containerConfiguration;
 

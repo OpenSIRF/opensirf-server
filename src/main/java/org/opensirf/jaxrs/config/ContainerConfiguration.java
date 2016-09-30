@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class ContainerConfiguration {
 	
 	public ContainerConfiguration() {
+		System.out.println("Instantiated contConfig");
 	}
 	
 	public ContainerConfiguration(String containerName, String driver, String endpoint) {
@@ -47,7 +48,7 @@ public class ContainerConfiguration {
 	private String endpoint;
 	
 	public enum Driver {
-		SWIFT("swift"), FILESYSTEM("fs");
+		SWIFT("swift"), FILESYSTEM("fs"), MULTICONTAINER("multi");
 		
 		private String name;
 

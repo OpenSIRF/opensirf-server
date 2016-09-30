@@ -29,7 +29,9 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package org.opensirf.jaxrs.storage.fs;
+package org.opensirf.jaxrs.storage.multicontainer;
+
+import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -43,25 +45,35 @@ import org.opensirf.jaxrs.config.ContainerConfiguration;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class FilesystemConfiguration extends ContainerConfiguration {
+public class MultiContainerConfiguration extends ContainerConfiguration {
 
-	private String mountPoint;
+	private String distributionPolicy;
+	private ArrayList<ContainerConfiguration> subconfigurations;
 
-	public FilesystemConfiguration() {
+	public MultiContainerConfiguration() {
 		super();
+		System.out.println("Instantiated multiContConfig");
 	}
 	
-	public FilesystemConfiguration(String containerName, String driver, String endpoint,
-			String mountPoint) {
+	public MultiContainerConfiguration(String containerName, String driver, String distributionPolicy,
+			String endpoint) {
 		super(containerName, driver, endpoint);
-		this.mountPoint = mountPoint;
+		this.distributionPolicy = distributionPolicy;
 	}
 
-	public String getMountPoint() {
-		return mountPoint;
+	public String getDistributionPolicy() {
+		return distributionPolicy;
 	}
 
-	public void setMountPoint(String mountPoint) {
-		this.mountPoint = mountPoint;
+	public void setDistributionPolicy(String distributionPolicy) {
+		this.distributionPolicy = distributionPolicy;
+	}
+
+	public ArrayList<ContainerConfiguration> getSubconfigurations() {
+		return subconfigurations;
+	}
+
+	public void setSubconfigurations(ArrayList<ContainerConfiguration> subconfigurations) {
+		this.subconfigurations = subconfigurations;
 	}
 }

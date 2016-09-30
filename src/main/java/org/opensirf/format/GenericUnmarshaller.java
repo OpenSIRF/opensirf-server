@@ -82,6 +82,8 @@ public class GenericUnmarshaller {
 	}
 	
 	public static <T> T unmarshal(String mediaType, String s, Class<T> clazz) {
+		System.out.println("STRING UNMARSHALLED = " + s);
+		
 		return unmarshal(mediaType, new ByteArrayInputStream(s.getBytes()), clazz);
 	}
 }

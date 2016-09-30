@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.opensirf.jaxrs.config.ContainerConfiguration.Driver;
 import org.opensirf.jaxrs.storage.fs.FilesystemConfiguration;
+import org.opensirf.jaxrs.storage.multicontainer.MultiContainerConfiguration;
 import org.opensirf.jaxrs.storage.swift.SwiftConfiguration;
 
 public class ContainerConfigurationAdapter extends
@@ -31,6 +32,12 @@ public class ContainerConfigurationAdapter extends
 			adaptedSirfConfig.driver = fsConfig.getDriver();
 			adaptedSirfConfig.endpoint = fsConfig.getEndpoint();
 			adaptedSirfConfig.mountPoint = fsConfig.getMountPoint();
+		}  else if(sirfConfiguration instanceof MultiContainerConfiguration) {
+			MultiContainerConfiguration multiConfig = (MultiContainerConfiguration) sirfConfiguration;
+			adaptedSirfConfig.containerName = multiConfig.getContainerName();
+			adaptedSirfConfig.driver = multiConfig.getDriver();
+			adaptedSirfConfig.endpoint = multiConfig.getEndpoint();
+			adaptedSirfConfig.distributionPolicy = multiConfig.getDistributionPolicy();
 		} else {
 			// Do stuff for generic SIRFConfiguration
 		}
@@ -39,9 +46,13 @@ public class ContainerConfigurationAdapter extends
 
 	@Override
 	public ContainerConfiguration unmarshal(AdaptedSIRFConfiguration adaptedSirfConfig) throws Exception {
+		System.out.println("UNMARSHAL");
+		
 		if(adaptedSirfConfig == null) {
 			return null;
 		}
+		
+		System.out.println("UNMARSHAL DRIVER == " + adaptedSirfConfig.driver);
 		
 		// Use driver instead
 		if(adaptedSirfConfig.driver.equalsIgnoreCase(Driver.SWIFT.toString())) {
@@ -65,6 +76,15 @@ public class ContainerConfigurationAdapter extends
 			System.out.println(fsConfig.getClass().getName());
 			
 			return fsConfig;
+		} else if(adaptedSirfConfig.driver.equalsIgnoreCase(Driver.MULTICONTAINER.toString())) {
+			MultiContainerConfiguration multiConfig = new MultiContainerConfiguration();
+			multiConfig.setDistributionPolicy(adaptedSirfConfig.distributionPolicy);
+			multiConfig.setContainerName(adaptedSirfConfig.containerName);
+			multiConfig.setDriver(adaptedSirfConfig.driver);
+			multiConfig.setEndpoint(adaptedSirfConfig.endpoint);
+			System.out.println(multiConfig.getClass().getName());
+			
+			return multiConfig;
 		} else {
 			// Do stuff for generic SIRFConfiguration
 			return null;
@@ -97,5 +117,8 @@ public class ContainerConfigurationAdapter extends
 
 		@XmlElement
 		public String endpoint;
+		
+		@XmlElement
+		public String distributionPolicy;
 	}
 }
