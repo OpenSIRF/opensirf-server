@@ -17,10 +17,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
+import org.opensirf.format.GenericUnmarshaller;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.ContainerConfigurationMarshaller;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
-import org.opensirf.jaxrs.config.SIRFConfigurationUnmarshaller;
+import org.opensirf.jaxrs.storage.multicontainer.MultiContainerConfiguration;
 
 @Path("sirf")
 public class ConfigApi {
@@ -41,8 +42,7 @@ public class ConfigApi {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public SIRFConfiguration getConfiguration() throws JAXBException, IOException, URISyntaxException {
 		String s = new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json")));
-		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().unmarshalConfig(s);
-		return config;
+		return GenericUnmarshaller.unmarshal("application/json", s, SIRFConfiguration.class);
 	}
 	
 	@GET

@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class ContainerConfiguration {
 	
 	public ContainerConfiguration() {
-		System.out.println("Instantiated contConfig");
 	}
 	
 	public ContainerConfiguration(String containerName, String driver, String endpoint) {

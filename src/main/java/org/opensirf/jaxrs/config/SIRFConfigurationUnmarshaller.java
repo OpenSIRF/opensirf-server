@@ -9,6 +9,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
+@Deprecated
 public class SIRFConfigurationUnmarshaller {
 	
 	public SIRFConfiguration unmarshalConfig(String s) {

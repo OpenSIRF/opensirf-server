@@ -8,6 +8,7 @@ import javax.xml.bind.Marshaller;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 
+@Deprecated
 public class SIRFConfigurationMarshaller {
 	public String marshalConfig(SIRFConfiguration c) {
 		try {

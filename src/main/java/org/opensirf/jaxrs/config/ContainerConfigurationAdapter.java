@@ -1,5 +1,7 @@
 package org.opensirf.jaxrs.config;
 
+import java.util.ArrayList;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
@@ -38,6 +40,7 @@ public class ContainerConfigurationAdapter extends
 			adaptedSirfConfig.driver = multiConfig.getDriver();
 			adaptedSirfConfig.endpoint = multiConfig.getEndpoint();
 			adaptedSirfConfig.distributionPolicy = multiConfig.getDistributionPolicy();
+			adaptedSirfConfig.subconfigurations = multiConfig.getSubconfigurations();
 		} else {
 			// Do stuff for generic SIRFConfiguration
 		}
@@ -46,13 +49,9 @@ public class ContainerConfigurationAdapter extends
 
 	@Override
 	public ContainerConfiguration unmarshal(AdaptedSIRFConfiguration adaptedSirfConfig) throws Exception {
-		System.out.println("UNMARSHAL");
-		
 		if(adaptedSirfConfig == null) {
 			return null;
 		}
-		
-		System.out.println("UNMARSHAL DRIVER == " + adaptedSirfConfig.driver);
 		
 		// Use driver instead
 		if(adaptedSirfConfig.driver.equalsIgnoreCase(Driver.SWIFT.toString())) {
@@ -82,6 +81,7 @@ public class ContainerConfigurationAdapter extends
 			multiConfig.setContainerName(adaptedSirfConfig.containerName);
 			multiConfig.setDriver(adaptedSirfConfig.driver);
 			multiConfig.setEndpoint(adaptedSirfConfig.endpoint);
+			multiConfig.setSubconfigurations(adaptedSirfConfig.subconfigurations);
 			System.out.println(multiConfig.getClass().getName());
 			
 			return multiConfig;
@@ -120,5 +120,8 @@ public class ContainerConfigurationAdapter extends
 		
 		@XmlElement
 		public String distributionPolicy;
+		
+		@XmlElement
+		public ArrayList<ContainerConfiguration> subconfigurations;
 	}
 }

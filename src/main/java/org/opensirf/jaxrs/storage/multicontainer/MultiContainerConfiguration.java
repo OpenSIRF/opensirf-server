@@ -52,7 +52,6 @@ public class MultiContainerConfiguration extends ContainerConfiguration {
 
 	public MultiContainerConfiguration() {
 		super();
-		System.out.println("Instantiated multiContConfig");
 	}
 	
 	public MultiContainerConfiguration(String containerName, String driver, String distributionPolicy,
