@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.opensirf.format.GenericMarshaller;
 import org.opensirf.format.GenericUnmarshaller;
 import org.opensirf.jaxrs.storage.multicontainer.MultiContainerConfiguration;
+import org.opensirf.jaxrs.storage.swift.SwiftConfiguration;
  
 public class MultiConfigTest {
 
@@ -19,6 +20,20 @@ public class MultiConfigTest {
     	
     	String configS = GenericMarshaller.marshal("application/json", config);
     	System.out.println(configS);
+    	
+//        "identity" : "sirf:sirfadmin",
+//        "credential" : "100years",
+//        "provider" : "openstack-swift",
+//        "region" : "RegionOne",
+//        "containerName" : "swift1",
+//        "driver" : "swift",
+//        "endpoint" : "http://172.28.128.3:5000/v2.0/"
+    	
+    	SwiftConfiguration swiftC = new SwiftConfiguration("swift2", "swift",
+    			"http://172.28.128.7:5000/v2.0/", "sirf:sirfadmin", "100years", "openstack-swift",
+    			"RegionOne");
+    	
+    	System.out.println("ELAST NODE: " + GenericMarshaller.marshal("application/json", swiftC));
     }
 	
 	@Test
