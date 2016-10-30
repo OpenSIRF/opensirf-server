@@ -62,7 +62,7 @@ public class ElasticityApi {
 	@PUT
 	@Path("joinMultiConfiguration")
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public Response addStorageContainerToMultiConfig(@FormDataParam("config") ContainerConfiguration containerConfig) throws JAXBException, IOException {
+	public Response addStorageContainerToMultiConfig(ContainerConfiguration containerConfig) throws JAXBException, IOException {
 		SIRFConfiguration config = GenericUnmarshaller.unmarshal("application/json", Paths.get(
     			SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"), SIRFConfiguration.class);
 
