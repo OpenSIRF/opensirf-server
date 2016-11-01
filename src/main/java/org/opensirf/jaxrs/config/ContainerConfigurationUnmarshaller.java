@@ -39,13 +39,18 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
+import org.opensirf.jaxrs.storage.fs.FilesystemConfiguration;
+import org.opensirf.jaxrs.storage.multicontainer.MultiContainerConfiguration;
 import org.opensirf.jaxrs.storage.swift.SwiftConfiguration;
 
 public class ContainerConfigurationUnmarshaller {
 	public ContainerConfigurationUnmarshaller(String mediaType) {
 		try
 		{
-			JAXBContext jaxbContext = JAXBContext.newInstance(ContainerConfiguration.class, SwiftConfiguration.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(ContainerConfiguration.class,
+					SwiftConfiguration.class,
+					FilesystemConfiguration.class,
+					MultiContainerConfiguration.class);
 			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, mediaType);
 			jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);			

@@ -34,7 +34,6 @@ package org.opensirf.elast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
 import javax.ws.rs.Consumes;
@@ -44,11 +43,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
-import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opensirf.format.GenericMarshaller;
 import org.opensirf.format.GenericUnmarshaller;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
-import org.opensirf.jaxrs.config.ContainerConfigurationMarshaller;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.config.SirfConfigurationException;
 import org.opensirf.jaxrs.storage.multicontainer.MultiContainerConfiguration;
@@ -62,17 +59,23 @@ public class ElasticityApi {
 	@PUT
 	@Path("joinMultiConfiguration")
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public Response addStorageContainerToMultiConfig(ContainerConfiguration containerConfig) throws JAXBException, IOException {
+	public Response addStorageContainerToMultiConfig(ScaleOutRequest request) throws JAXBException, IOException {
 		SIRFConfiguration config = GenericUnmarshaller.unmarshal("application/json", Paths.get(
     			SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"), SIRFConfiguration.class);
-
+		
+		ContainerConfiguration containerConfig = request.getContainerConfiguration();
+		
+		System.out.println("containerConfig class == " + containerConfig.getClass().getName());
+		
 		try {
 			MultiContainerConfiguration multiConfig = (MultiContainerConfiguration) config.
 					getContainerConfiguration();
 			multiConfig.getSubconfigurations().add(containerConfig);
-			System.out.println("NUM OF SUBCONFIGS = " + multiConfig.getSubconfigurations().size());
+			config.setContainerConfiguration(multiConfig);
+			
+			
 			FileOutputStream fos = new FileOutputStream(new File(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"));
-			fos.write(GenericMarshaller.marshal("application/json", multiConfig).getBytes());
+			fos.write(GenericMarshaller.marshal("application/json", config).getBytes());
 			fos.flush();
 			fos.close();
 		} catch(ClassCastException cce) {

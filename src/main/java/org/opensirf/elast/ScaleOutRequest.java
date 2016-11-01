@@ -31,19 +31,26 @@
  */
 package org.opensirf.elast;
 
-import org.junit.Test;
-import org.opensirf.format.GenericUnmarshaller;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.opensirf.jaxrs.config.ContainerConfiguration;
 
 /**
  * @author pviana
  *
  */
-public class ElasticityTest {	
-	@Test
-    public void scaleOutMarshallingTest() throws Exception {
-    	String jsonScaleOutReq = "{\"containerConfiguration\":{\"containerName\":\"lv1\",\"driver\":\"fs\",\"endpoint\":\"localhost\",\"mountPoint\":\"/var/lib/sirf/storage/lv1\"}}";
-    
-    	ScaleOutRequest request = GenericUnmarshaller.unmarshal("application/json", jsonScaleOutReq, ScaleOutRequest.class);
-    	System.out.println("FINAL CLASS == " + request.getContainerConfiguration().getClass().getName() + " " + request.getContainerConfiguration().getDriver());
-    }
+@XmlRootElement
+public class ScaleOutRequest {
+	public ScaleOutRequest() {
+	}
+	
+	public ContainerConfiguration getContainerConfiguration() {
+		return containerConfiguration;
+	}
+
+	public void setContainerConfiguration(ContainerConfiguration containerConfiguration) {
+		this.containerConfiguration = containerConfiguration;
+	}
+
+	private ContainerConfiguration containerConfiguration;
 }

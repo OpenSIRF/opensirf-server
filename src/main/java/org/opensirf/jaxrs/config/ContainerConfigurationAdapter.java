@@ -15,9 +15,15 @@ public class ContainerConfigurationAdapter extends
 
 	@Override
 	public AdaptedSIRFConfiguration marshal(ContainerConfiguration sirfConfiguration) {
+		System.out.println("ENTER MARSHAL CONTAINER CONFIG");
+		
 		if(sirfConfiguration == null) {
 			return null;
 		}
+
+		System.out.println("MARSHAL NAME = " + sirfConfiguration.getContainerName() + " drv=" +
+				sirfConfiguration.getDriver() + " class=" + sirfConfiguration.getClass().getName());
+		
 		AdaptedSIRFConfiguration adaptedSirfConfig = new AdaptedSIRFConfiguration();
 		if(sirfConfiguration instanceof SwiftConfiguration) {
 			SwiftConfiguration swiftConfig = (SwiftConfiguration) sirfConfiguration;
@@ -43,15 +49,23 @@ public class ContainerConfigurationAdapter extends
 			adaptedSirfConfig.subconfigurations = multiConfig.getSubconfigurations();
 		} else {
 			// Do stuff for generic SIRFConfiguration
+			throw new SirfConfigurationException("Container configuration " + sirfConfiguration.
+					getContainerName() + " does not seem to be have a supporting class marshaller. " +
+					" Type: " + sirfConfiguration.getClass().getName());
 		}
+		
 		return adaptedSirfConfig;
 	}
 
 	@Override
 	public ContainerConfiguration unmarshal(AdaptedSIRFConfiguration adaptedSirfConfig) throws Exception {
+		System.out.println("ENTER UNMARSHAL CONTAINER CONFIG");
+		
 		if(adaptedSirfConfig == null) {
 			return null;
 		}
+		
+		System.out.println("UNMARSHAL NAME = " + adaptedSirfConfig.containerName + " drv=" + adaptedSirfConfig.driver);
 		
 		// Use driver instead
 		if(adaptedSirfConfig.driver.equalsIgnoreCase(Driver.SWIFT.toString())) {
@@ -65,6 +79,8 @@ public class ContainerConfigurationAdapter extends
 			swiftConfig.setEndpoint(adaptedSirfConfig.endpoint);
 			System.out.println(swiftConfig.getClass().getName());
 			
+			System.out.println("RETURNING SWIFT CONFIG FOR " + adaptedSirfConfig.containerName);
+			
 			return swiftConfig;
 		} else if(adaptedSirfConfig.driver.equalsIgnoreCase(Driver.FILESYSTEM.toString())) {
 			FilesystemConfiguration fsConfig = new FilesystemConfiguration();
@@ -73,6 +89,8 @@ public class ContainerConfigurationAdapter extends
 			fsConfig.setDriver(adaptedSirfConfig.driver);
 			fsConfig.setEndpoint(adaptedSirfConfig.endpoint);
 			System.out.println(fsConfig.getClass().getName());
+			
+			System.out.println("RETURNING FS CONFIG FOR " + adaptedSirfConfig.containerName);
 			
 			return fsConfig;
 		} else if(adaptedSirfConfig.driver.equalsIgnoreCase(Driver.MULTICONTAINER.toString())) {
@@ -87,7 +105,8 @@ public class ContainerConfigurationAdapter extends
 			return multiConfig;
 		} else {
 			// Do stuff for generic SIRFConfiguration
-			return null;
+			throw new SirfConfigurationException("Container configuration " + adaptedSirfConfig.
+				containerName + " does not seem to be have a supporting class unmarshaller. ");
 		}
 	}
 
