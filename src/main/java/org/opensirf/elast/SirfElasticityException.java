@@ -35,6 +35,12 @@ package org.opensirf.elast;
  * @author pviana
  *
  */
-public class ElasticityController {
+public class SirfElasticityException extends RuntimeException {
+
+	public SirfElasticityException(String message) {
+		super(message);
+	}
+	
+	private static final long serialVersionUID = 1L;
 
 }

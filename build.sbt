@@ -36,6 +36,7 @@ publishArtifact in (Compile, packageSrc) := false
 
 libraryDependencies += "org.opensirf" % "opensirf-core" % "1.0.0" changing()
 libraryDependencies += "com.novocode" % "junit-interface" % "0.4" % "test"
+libraryDependencies += "com.jcraft" % "jsch" % "0.1.54"
 
 resolvers += Resolver.url("SIRF Artifactory", url("http://200.144.189.109:58082/artifactory"))(Resolver.ivyStylePatterns)
 

@@ -29,29 +29,20 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-package org.opensirf.elast;
-
-import org.junit.Test;
-import org.opensirf.elast.controller.ElasticityController;
-import org.opensirf.format.GenericUnmarshaller;
+package org.opensirf.elast.controller;
 
 /**
  * @author pviana
  *
  */
-public class ElasticityTest {	
-	@Test
-    public void scaleOutMarshallingTest() throws Exception {
-    	String jsonScaleOutReq = "{\"containerConfiguration\":{\"containerName\":\"lv1\",\"driver\":\"fs\",\"endpoint\":\"localhost\",\"mountPoint\":\"/var/lib/sirf/storage/lv1\"}}";
-    
-    	ScaleOutRequest request = GenericUnmarshaller.unmarshal("application/json", jsonScaleOutReq, ScaleOutRequest.class);
-    	System.out.println("FINAL CLASS == " + request.getContainerConfiguration().getClass().getName() + " " + request.getContainerConfiguration().getDriver());
-    }
-	
-	@Test
-	public void jschTest() throws Exception { 
-		String output = new ElasticityController().instantiateNewNode("200.144.189.109", "phillip",
-				"swift", "devstacknode-elast1");
-		System.out.println("OUTPUT == " + output);
+public class ElasticityController {
+	public String instantiateNewNode(String cloudProviderServer, String user, String baseImage, String vmName) {
+		ElasticitySshClient client = new ElasticitySshClient(user, cloudProviderServer, 22);
+		client.addIdentity("/home/phil/.ssh/id_rsa", "");
+		client.setKnownHosts("/home/phil/.ssh/known_hosts");
+		client.connect();
+		String output = client.createNewVagrantVM(baseImage, vmName);
+		client.disconnect();
+		return output;
 	}
 }
