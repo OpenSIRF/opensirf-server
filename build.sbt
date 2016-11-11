@@ -35,6 +35,7 @@ publishArtifact in (Compile, packageDoc) := false
 publishArtifact in (Compile, packageSrc) := false
 
 libraryDependencies += "org.opensirf" % "opensirf-core" % "1.0.0" changing()
+libraryDependencies += "org.opensirf" % "opensirf-java-client" % "1.0.0" changing()
 libraryDependencies += "com.novocode" % "junit-interface" % "0.4" % "test"
 libraryDependencies += "com.jcraft" % "jsch" % "0.1.54"
 

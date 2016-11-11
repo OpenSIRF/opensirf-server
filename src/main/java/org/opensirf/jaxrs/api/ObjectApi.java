@@ -31,6 +31,7 @@
  */
 package org.opensirf.jaxrs.api;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -89,15 +90,19 @@ public class ObjectApi {
     			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
     	
 		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		StreamingOutput so = strat.getPreservationObjectStreamingOutput(containerName, poName);
-		
-		Response r = Response.ok(so).header("content-disposition","attachment;filename=" + poName).
-				build();
-		
+		try {
+			StreamingOutput so = strat.getPreservationObjectStreamingOutput(containerName, poName);
+			
+			return Response.ok(so).header("content-disposition","attachment;filename=" + poName).
+					build();
+			
+		} catch(PreservationObjectNotFoundException ponfe) {
+			return Response.status(Response.Status.NOT_FOUND).
+					entity(null).
+					build();
+		}
 		// TODO: fix potential memory leaks with inputstreams
 		// strat.close();
-		
-		return r;
 	}
 
 	@POST

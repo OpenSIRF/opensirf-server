@@ -55,6 +55,7 @@ import org.jclouds.openstack.swift.v1.options.PutOptions;
 import org.opensirf.container.MagicObject;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.storage.ISirfDriver;
+import org.opensirf.jaxrs.storage.multicontainer.MultiContainerIndex;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -95,30 +96,6 @@ public class SwiftDriver implements ISirfDriver {
 		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
 		return new MagicObject(containerApi.get(containerName).getMetadata());
 	}
-
-//	public void uploadObjectFromFile(String swiftContainerName, String fileName) {
-//		try {
-//			ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, swiftContainerName);
-//			File file = new File(fileName);
-//			FileInputStream fis = new FileInputStream(file);
-//			byte[] fileBytes = new byte[(int) file.length()];
-//			fis.read(fileBytes);
-//			Payload payload = newByteSourcePayload(wrap(fileBytes));
-//			fis.close();
-//
-//			objectApi.put(fileName, payload, PutOptions.Builder.metadata(ImmutableMap.of("key1", "value1")));
-//		} catch (IOException ioe) {
-//			ioe.printStackTrace();
-//		}
-//	}
-
-//	public String downloadSmallObjectFromFile(String container, String filename) throws IOException {
-//		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, container);
-//		SwiftObject fileObject = objectApi.get(filename);
-//		InputStream is = fileObject.getPayload().openStream();
-//
-//		return IOUtils.toString(is);
-//	}
 
 	public InputStream getFileInputStream(String container, String filename) throws IOException {
 		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, container);

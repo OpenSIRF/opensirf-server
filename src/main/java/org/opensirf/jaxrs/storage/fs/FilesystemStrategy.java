@@ -29,6 +29,7 @@ import org.opensirf.jaxrs.storage.IStorageContainerStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class FilesystemStrategy implements IStorageContainerStrategy {
 
 	static final Logger log = LoggerFactory.getLogger(FilesystemStrategy.class); 
@@ -71,7 +72,7 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	public void createContainer(String containerName) {
 		log.debug("ENTER createContainer()");
 		FilesystemDriver driver = new FilesystemDriver(config);
-		driver.createContainerAndMagicObject(config.getMountPoint() + "/" + containerName);
+		driver.createContainerAndMagicObject(containerName);
 		driver.close();
 	}
 
@@ -106,27 +107,20 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	@Override
 	public StreamingOutput getPreservationObjectStreamingOutput(String poName, String containerName) {
 		log.debug("ENTER getPreservationObjectStreamingOutput()");
-		FilesystemDriver driver = new FilesystemDriver(config);
-		StreamingOutput so = null;
+		FilesystemDriver driver = new FilesystemDriver(config);		
+		poInputStream = driver.getFileInputStream(containerName, poName);
 		
-		try {
-			poInputStream = driver.getFileInputStream(containerName, poName);
-			
-			so = new StreamingOutput() {
-				public void write(OutputStream out) throws IOException, WebApplicationException {
-                    int read = 0;
-                    byte[] bytes = new byte[1024];
+		StreamingOutput so = new StreamingOutput() {
+			public void write(OutputStream out) throws IOException, WebApplicationException {
+                int read = 0;
+                byte[] bytes = new byte[1024];
 
-                    while ((read = poInputStream.read(bytes)) != -1)
-                        out.write(bytes, 0, read);
-				}
-			};
-			
-			driver.close();
-			
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+                while ((read = poInputStream.read(bytes)) != -1)
+                    out.write(bytes, 0, read);
+			}
+		};
+		
+		driver.close();
 		
 		return so;
 	}
@@ -136,24 +130,17 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	public void deletePreservationObject(String poName, String containerName) {
 		log.debug("ENTER deletePreservationObject()");
 		FilesystemDriver driver = new FilesystemDriver(config);
-		String containerPath = config.getMountPoint() + "/" + containerName;
-		driver.deleteFile(containerPath, poName);
+		driver.deleteObject(containerName, poName);
 		driver.close();
 	}
 
 	@Override
 	public InputStream getPreservationObjectInputStream(String containerName, String poUUID) {
 		log.debug("ENTER getPreservationObjectInputStream()");
-		try {
-			FilesystemDriver driver = new FilesystemDriver(config);
-			InputStream is = driver.getFileInputStream(containerName, poUUID);
-			driver.close();
-			return is;
-		} catch(IOException ioe) {
-			ioe.printStackTrace();
-		}
-		
-		return null;
+		FilesystemDriver driver = new FilesystemDriver(config);
+		InputStream is = driver.getFileInputStream(containerName, poUUID);
+		driver.close();
+		return is;
 	}
 
 	public String marshalConfig(FilesystemConfiguration config) {
@@ -195,11 +182,10 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	@Override
 	public void pushProvenanceInformation(String authorName, String containerName) {
 		log.debug("ENTER pushProvenanceInformation()");
-		String containerPath = config.getMountPoint() + "/" + containerName;
 		FilesystemDriver driver = new FilesystemDriver(config);
 
 		try {
-			driver.uploadObjectFromString(containerPath,
+			driver.uploadObjectFromString(containerName,
 				SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE,
 				new ProvenanceInformationMarshaller("application/json")
 				.marshalProvenanceInformation(new ProvenanceInformation(authorName)));
@@ -214,7 +200,6 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	public void pushCatalog(SIRFCatalog catalog, String containerName) {
 		log.debug("ENTER pushCatalog()");
 		FilesystemDriver driver = new FilesystemDriver(config);
-		String containerPath = config.getMountPoint() + "/" + containerName;
 
 		try {
 			SIRFCatalog existingCatalog = getCatalog(containerName);
@@ -229,7 +214,7 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 			
 			// TODO: else throw exception; number of POs can only change via a PO upload
 			
-			driver.uploadObjectFromString(containerPath, SIRFContainer.SIRF_DEFAULT_CATALOG_ID,
+			driver.uploadObjectFromString(containerName, SIRFContainer.SIRF_DEFAULT_CATALOG_ID,
 					new SIRFCatalogMarshaller("application/json").marshalCatalog(catalog));
 			driver.close();
 			
@@ -242,7 +227,7 @@ public class FilesystemStrategy implements IStorageContainerStrategy {
 	public void pushPreservationObject(String poUUID, byte[] b, String containerName) {
 		log.debug("ENTER pushPreservationObject()");
 		FilesystemDriver driver = new FilesystemDriver(config);
-		driver.uploadObjectFromByteArray(config.getMountPoint() + "/" + containerName, poUUID, b);
+		driver.uploadObjectFromByteArray(containerName, poUUID, b);
 		driver.close();
 	}
 

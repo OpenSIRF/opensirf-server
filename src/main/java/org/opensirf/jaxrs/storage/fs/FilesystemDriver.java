@@ -33,7 +33,6 @@ package org.opensirf.jaxrs.storage.fs;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,21 +42,25 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
+import org.jclouds.openstack.swift.v1.domain.Container;
 import org.opensirf.container.MagicObject;
 import org.opensirf.format.GenericMarshaller;
 import org.opensirf.format.GenericUnmarshaller;
 import org.opensirf.format.SirfFormatException;
+import org.opensirf.jaxrs.api.PreservationObjectNotFoundException;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.SIRFConfiguration;
+import org.opensirf.jaxrs.storage.ISirfDriver;
 import org.opensirf.jaxrs.storage.SirfStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FilesystemDriver implements Closeable {	
+public class FilesystemDriver implements ISirfDriver {	
 
 	static final Logger log = LoggerFactory.getLogger(FilesystemDriver.class); 
 
@@ -66,14 +69,14 @@ public class FilesystemDriver implements Closeable {
 	}
 
 	public void close() {
-		
 	}
 	
 	private void createDirectory(String dirPath) {
 		new File(dirPath).mkdir();
 	}
 
-	public void createContainerAndMagicObject(String containerPath) {
+	public void createContainerAndMagicObject(String containerName) {
+		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
 		createDirectory(containerPath);
 		createMagicObjectFile(containerPath, "1.0", "1", "catalog.json");
 	}
@@ -98,17 +101,24 @@ public class FilesystemDriver implements Closeable {
 	}
 
 	public MagicObject getMagicObject(String containerPath) {
-		String magicObjectPath = containerPath + "/" + "magic.json";
+		String magicObjectPath = SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "/storage/" + 
+				containerPath + "/" + "magic.json";
 		Path moPath = Paths.get(magicObjectPath);
 		return GenericUnmarshaller.unmarshal("application/json", moPath, MagicObject.class);
 	}
 
-	public InputStream getFileInputStream(String container, String filename) throws IOException {
-		return new FileInputStream(new File(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "/storage/" +
+	public InputStream getFileInputStream(String container, String filename) {
+		try {
+			return new FileInputStream(new File(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "/storage/" +
 				container + "/" + filename));
+		} catch(FileNotFoundException fnfe) {
+			throw new PreservationObjectNotFoundException("The preservation object could not be found."
+					+ " File is missing from storage container: " + filename);
+		}
 	}
 
-	public void uploadObjectFromString(String containerPath, String fileName, String content) {
+	public void uploadObjectFromString(String containerName, String fileName, String content) {
+		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
 		String objectLocation = containerPath + "/" + fileName;
 		Path objectPath = Paths.get(objectLocation);
 		BufferedWriter wri;
@@ -123,7 +133,8 @@ public class FilesystemDriver implements Closeable {
 		}
 	}
 
-	public void uploadObjectFromByteArray(String containerPath, String fileName, byte[] b) {
+	public void uploadObjectFromByteArray(String containerName, String fileName, byte[] b) {
+		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
 		String objectLocation = containerPath + "/" + fileName;
 		try {
 			FileOutputStream fos = new FileOutputStream(objectLocation);
@@ -141,19 +152,46 @@ public class FilesystemDriver implements Closeable {
 		} 
 	}
 
-	public void deleteContainer(String containerPath) {
+	public void deleteContainer(String containerName) {
 		try {
+			String containerPath = fsConfig.getMountPoint() + "/" + containerName;
 			log.debug("Deleting container on " + containerPath);
 			FileUtils.deleteDirectory(new File(containerPath));
 		} catch(IOException ioe) {
 			throw new SirfStorageException("IO exception trying to delete container on " +
-				containerPath + ". Please verify full path and the filesystem contents.");
+				containerName + ". Please verify full path and the filesystem contents.");
 		}
 	}
 
-	public void deleteFile(String containerPath, String objectName) {
+	private void deleteFile(String containerPath, String objectName) {
 		new File(containerPath + "/" + objectName).delete();
 	}
 
 	private final FilesystemConfiguration fsConfig;
+
+	/* (non-Javadoc)
+	 * @see org.opensirf.jaxrs.storage.ISirfDriver#containerMetadata(java.lang.String)
+	 */
+	@Override
+	public MagicObject containerMetadata(String containerPath) {
+		return getMagicObject(containerPath);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensirf.jaxrs.storage.ISirfDriver#deleteObject(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void deleteObject(String containerName, String objectName) {
+		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+		deleteFile(containerPath, objectName);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensirf.jaxrs.storage.ISirfDriver#listContainers()
+	 */
+	@Override
+	public Set<Container> listContainers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

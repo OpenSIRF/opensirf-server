@@ -39,6 +39,7 @@ import java.util.Set;
 
 import org.jclouds.openstack.swift.v1.domain.Container;
 import org.opensirf.container.MagicObject;
+import org.opensirf.jaxrs.storage.multicontainer.MultiContainerIndex;
 
 /**
  * @author pviana

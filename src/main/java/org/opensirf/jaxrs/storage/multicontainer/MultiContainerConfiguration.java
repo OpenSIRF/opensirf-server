@@ -75,4 +75,10 @@ public class MultiContainerConfiguration extends ContainerConfiguration {
 	public void setSubconfigurations(ArrayList<ContainerConfiguration> subconfigurations) {
 		this.subconfigurations = subconfigurations;
 	}
+	
+	// All containers tend to have same percentage of free disk space
+	public static final String EVENLY_FREE_POLICY = "evenlyFree";
+
+	// Only write to next container when current gets full
+	public static final String SERIAL_POLICY = "serial";
 }
