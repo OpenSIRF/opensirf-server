@@ -33,44 +33,64 @@ package org.opensirf.jaxrs.storage.multicontainer;
 
 import org.opensirf.client.SirfClient;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
-import org.opensirf.jaxrs.storage.fs.*;
 import org.opensirf.jaxrs.config.ContainerConfiguration.Driver;
+import org.opensirf.jaxrs.storage.fs.FilesystemConfiguration;
+import org.opensirf.jaxrs.storage.swift.SwiftConfiguration;
+import org.opensirf.jaxrs.storage.swift.SwiftDriver;
 import org.opensirf.storage.monitor.api.DiskApi;
 import org.opensirf.storage.monitor.model.StorageMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pviana
  *
  */
 public class StoragePoller {
+
+	static final Logger log = LoggerFactory.getLogger(StoragePoller.class); 
+
 	public ContainerConfiguration findTargetStorageContainer(MultiContainerConfiguration config) {
 		if(config.getDistributionPolicy().equalsIgnoreCase(
 				MultiContainerConfiguration.EVENLY_FREE_POLICY)) {
+			log.debug("Finding target storage container, policy = evenlyFree");
 			float mostFreeDiskSpace = 0F;
 			ContainerConfiguration targetContainer = null;
 			
 			for(ContainerConfiguration c: config.getSubconfigurations()) {
 				if(c.getDriver().equalsIgnoreCase(Driver.FILESYSTEM.toString())) {
-					SirfClient cli = new SirfClient(c.getEndpoint() + ":8080/opensirf-storage-monitor-1.0.0");
+					SirfClient cli = new SirfClient(c.getEndpoint() + ":" + 
+							FilesystemConfiguration.DEFAULT_STORAGE_MONITOR_PORT + STORAGE_MONITOR_URI);
 					StorageMetadata meta = cli.getStorageMetadata(((FilesystemConfiguration) c).getMountPoint());
 					if(meta.getFreeDiskSpace() > mostFreeDiskSpace) {
 						targetContainer = c;
 						mostFreeDiskSpace = meta.getFreeDiskSpace();
 					}
-					System.out.println(meta.getFreeDiskSpace() + " " + meta.getSpaceInMegabytes());
+					
+					log.debug(c.getContainerName() + ": " + meta.getFreeDiskSpace() + "/1 free (" +
+							meta.getSpaceInMegabytes() + " MB)");
+					
 				} else if(c.getDriver().equalsIgnoreCase(Driver.SWIFT.toString())) {
 					String endpoint = c.getEndpoint().substring(
 							c.getEndpoint().indexOf("http://") + "http://".length(), // beginIndex
-							c.getEndpoint().indexOf(":5000")); // endIndex
+							c.getEndpoint().indexOf(":" + SwiftConfiguration.DEFAULT_IDENTITY_PORT)); // endIndex
+					endpoint += ":" + FilesystemConfiguration.DEFAULT_STORAGE_MONITOR_PORT;
+					endpoint += STORAGE_MONITOR_URI;
+					
 					SirfClient cli = new SirfClient(endpoint);
 					StorageMetadata meta = cli.getStorageMetadata(DiskApi.DEFAULT_SWIFT_FILESYSTEM_LOCATION);
-					System.out.println(meta.getFreeDiskSpace() + " " + meta.getSpaceInMegabytes());
+
+					log.debug(c.getContainerName() + ": " + meta.getFreeDiskSpace() + "/1 free (" +
+							meta.getSpaceInMegabytes() + " MB)");
+					
 					if(meta.getFreeDiskSpace() > mostFreeDiskSpace) {
 						targetContainer = c;
 						mostFreeDiskSpace = meta.getFreeDiskSpace();
 					}
 				}
 			}
+			
+			log.debug("Target container: " + targetContainer.getContainerName());
 			
 			return targetContainer;
 		}
@@ -85,4 +105,6 @@ public class StoragePoller {
 		
 		return null;
 	}
+	
+	public static final String STORAGE_MONITOR_URI = "/opensirf-storage-monitor";
 }

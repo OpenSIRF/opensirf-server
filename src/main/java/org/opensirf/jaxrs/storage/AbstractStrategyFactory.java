@@ -7,11 +7,7 @@ import org.opensirf.jaxrs.storage.swift.SwiftStrategy;
 
 public class AbstractStrategyFactory {
 	public static IStorageContainerStrategy createStrategy(SIRFConfiguration config) {
-		if (config.getContainerConfiguration().getDriver().equalsIgnoreCase("swift")) {
-			return new SwiftStrategy(config.getContainerConfiguration());
-		} else if (config.getContainerConfiguration().getDriver().equalsIgnoreCase("fs")) {
-			return new FilesystemStrategy(config.getContainerConfiguration());
-		} else if (config.getContainerConfiguration().getDriver().equalsIgnoreCase("multi")) {
+		if (config.getContainerConfiguration().getDriver().equalsIgnoreCase("multi")) {
 			return new MultiContainerStrategy(config.getContainerConfiguration());
 		}
 

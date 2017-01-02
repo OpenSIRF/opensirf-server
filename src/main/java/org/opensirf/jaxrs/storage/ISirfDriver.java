@@ -47,22 +47,21 @@ import org.opensirf.jaxrs.storage.multicontainer.MultiContainerIndex;
  */
 public interface ISirfDriver extends Closeable {
 
-	void createContainerAndMagicObject(String containerName);
+	public void createContainerAndMagicObject(String containerName);
 
-	MagicObject containerMetadata(String containerName);
+	public MagicObject containerMetadata(String storageContainer, String sirfContainer);
 
-	InputStream getFileInputStream(String container, String filename) throws IOException;
+	public InputStream getFileInputStream(String container, String filename) throws IOException;
 
-	void uploadObjectFromString(String containerName, String fileName, String content);
+	public void uploadObjectFromString(String containerName, String fileName, String content);
 
-	void uploadObjectFromByteArray(String containerName, String fileName, byte[] b);
+	public void uploadObjectFromByteArray(String containerName, String fileName, byte[] b);
 
-	void deleteContainer(String containerName);
+	public void deleteContainer(String containerName);
 
-	void deleteObject(String containerName, String objectName);
+	public void deleteObject(String containerName, String objectName);
 
-	Set<Container> listContainers();
+	public Set<Container> listContainers();
 
-	void close() throws IOException;
-
+	public void close() throws IOException;
 }

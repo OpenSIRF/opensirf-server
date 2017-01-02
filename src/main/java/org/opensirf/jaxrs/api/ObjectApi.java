@@ -77,8 +77,9 @@ public class ObjectApi {
 		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
 		
 		SIRFCatalog c = strat.getCatalog(containerName);
-		PreservationObjectInformation poi = null;
-		poi = c.getSirfObjects().get(poUUID);
+		PreservationObjectInformation poi = c.getSirfObjects().get(poUUID);
+		
+		// TODO: return a response (HTTP 404 if not found) with POI as entity
 		return poi;
 	}
 	

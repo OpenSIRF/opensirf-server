@@ -60,6 +60,5 @@ public class SwiftConfiguration extends ContainerConfiguration {
 		this.region = region;
 	}
 
-	
-
+	public static final String DEFAULT_IDENTITY_PORT = "5000";
 }

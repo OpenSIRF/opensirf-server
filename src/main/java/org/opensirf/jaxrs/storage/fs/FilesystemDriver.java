@@ -100,7 +100,8 @@ public class FilesystemDriver implements ISirfDriver {
 		}
 	}
 
-	public MagicObject getMagicObject(String containerPath) {
+	public MagicObject getMagicObject(String storageContainer, String sirfContainer) {
+		String containerPath = storageContainer + "/" + sirfContainer;
 		String magicObjectPath = SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "/storage/" + 
 				containerPath + "/" + "magic.json";
 		Path moPath = Paths.get(magicObjectPath);
@@ -121,8 +122,11 @@ public class FilesystemDriver implements ISirfDriver {
 		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
 		String objectLocation = containerPath + "/" + fileName;
 		Path objectPath = Paths.get(objectLocation);
+		
 		BufferedWriter wri;
 		try {
+			// In case the SIRF container doesn't yet exist in the storage container
+			Files.createDirectories(objectPath.getParent());
 			wri = Files.newBufferedWriter(objectPath);
 			wri.write(content);
 			wri.flush();
@@ -137,6 +141,9 @@ public class FilesystemDriver implements ISirfDriver {
 		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
 		String objectLocation = containerPath + "/" + fileName;
 		try {
+			// In case the SIRF container doesn't yet exist in the storage container
+			Files.createDirectories(Paths.get(containerPath));
+			
 			FileOutputStream fos = new FileOutputStream(objectLocation);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			bos.write(b);
@@ -170,11 +177,11 @@ public class FilesystemDriver implements ISirfDriver {
 	private final FilesystemConfiguration fsConfig;
 
 	/* (non-Javadoc)
-	 * @see org.opensirf.jaxrs.storage.ISirfDriver#containerMetadata(java.lang.String)
+	 * @see org.opensirf.jaxrs.storage.ISirfDriver#containerMetadata(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public MagicObject containerMetadata(String containerPath) {
-		return getMagicObject(containerPath);
+	public MagicObject containerMetadata(String storageContainer, String sirfContainer) {
+		return getMagicObject(storageContainer, sirfContainer);
 	}
 
 	/* (non-Javadoc)

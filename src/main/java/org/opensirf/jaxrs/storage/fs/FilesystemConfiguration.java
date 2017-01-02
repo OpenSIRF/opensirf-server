@@ -64,4 +64,6 @@ public class FilesystemConfiguration extends ContainerConfiguration {
 	public void setMountPoint(String mountPoint) {
 		this.mountPoint = mountPoint;
 	}
+	
+	public static final String DEFAULT_STORAGE_MONITOR_PORT = "8088";
 }

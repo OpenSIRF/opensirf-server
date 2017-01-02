@@ -31,7 +31,6 @@
  */
 package org.opensirf.jaxrs.storage.swift;
 
-
 import static com.google.common.io.ByteSource.wrap;
 import static org.jclouds.io.Payloads.newByteSourcePayload;
 
@@ -55,7 +54,8 @@ import org.jclouds.openstack.swift.v1.options.PutOptions;
 import org.opensirf.container.MagicObject;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.storage.ISirfDriver;
-import org.opensirf.jaxrs.storage.multicontainer.MultiContainerIndex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -63,6 +63,8 @@ import com.google.common.io.Closeables;
 import com.google.inject.Module;
 
 public class SwiftDriver implements ISirfDriver {
+
+	static final Logger log = LoggerFactory.getLogger(SwiftDriver.class); 
 
 	private SwiftApi swiftApi;
 	private BlobStoreContext blobStoreContext;
@@ -83,40 +85,50 @@ public class SwiftDriver implements ISirfDriver {
 				buildView(BlobStoreContext.class);
 	}
 
-	public void createContainerAndMagicObject(String containerName) {
+	public void createContainerAndMagicObject(String sirfContainerName) {
+		log.info("Creating container and magic object for " + sirfContainerName);
 		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
 		CreateContainerOptions options = CreateContainerOptions.Builder.metadata(ImmutableMap.
 				of("containerSpecification", "1.0", "sirfLevel", "1", "sirfCatalogId", "catalog.json"));
-		System.out.println("Creating container " + containerName);
-		boolean returnCode = containerApi.create(containerName, options);
+		System.out.println("Creating container " + sirfContainerName);
+		boolean returnCode = containerApi.create(sirfContainerName, options);
 		System.out.println("Return: " + returnCode);
 	}
 
-	public MagicObject containerMetadata(String containerName) {
+	public MagicObject containerMetadata(String storageContainer, String sirfContainer) {
+		log.info("Returning magic object for " + sirfContainer);
 		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
-		return new MagicObject(containerApi.get(containerName).getMetadata());
+		return new MagicObject(containerApi.get(sirfContainer).getMetadata());
 	}
 
-	public InputStream getFileInputStream(String container, String filename) throws IOException {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, container);
-		SwiftObject fileObject = objectApi.get(filename);
+	public InputStream getFileInputStream(String storageContainerName, String filepath) throws IOException {
+		String sirfContainerName = filepath.substring(0, filepath.indexOf('/'));
+		String fileName = filepath.substring(filepath.indexOf('/') + 1);
+		log.debug("Get file: Container = " + sirfContainerName + " File = " + fileName);
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, sirfContainerName);
+		SwiftObject fileObject = objectApi.get(fileName);
+		if(fileObject == null || fileObject.getPayload() == null)
+			return null;		
 		return fileObject.getPayload().openStream();
 	}
 
-	public void uploadObjectFromString(String containerName, String fileName, String content) {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, containerName);
+	public void uploadObjectFromString(String storageContainerName, String filename, String content) {
+		log.debug("Upload obj: Container = " + storageContainerName + " File = " + filename);
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, storageContainerName);
 		Payload payload = newByteSourcePayload(wrap(content.getBytes()));
-		objectApi.put(fileName, payload, PutOptions.Builder.metadata(ImmutableMap.of("key1", "value1")));
+		objectApi.put(filename, payload, PutOptions.Builder.metadata(ImmutableMap.of("key1", "value1")));
 	}
 	
-	public void uploadObjectFromByteArray(String containerName, String fileName, byte[] b) {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, containerName);
+	public void uploadObjectFromByteArray(String storageContainerName, String filename, byte[] b) {
+		log.debug("Upload obj from b[]: Container = " + storageContainerName + " File = " + filename);
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, storageContainerName);
 		Payload payload = newByteSourcePayload(wrap(b));
-		objectApi.put(fileName, payload);
+		objectApi.put(filename, payload);
 	}
 
-	public void deleteContainer(String containerName) {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, containerName);
+	public void deleteContainer(String storageContainerName) {
+		log.info("Deleting storage container: " + storageContainerName);
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, storageContainerName);
 		ObjectList list = objectApi.list();
 
 		Iterator<SwiftObject> itr = list.iterator();
@@ -127,11 +139,12 @@ public class SwiftDriver implements ISirfDriver {
 		}
 
 		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
-		containerApi.deleteIfEmpty(containerName);
+		containerApi.deleteIfEmpty(storageContainerName);
 	}
 
-	public void deleteObject(String containerName, String objectName) {
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, containerName);
+	public void deleteObject(String storageContainerName, String objectName) {
+		log.info("Deleting object: " + objectName);
+		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, storageContainerName);
 		objectApi.delete(objectName);
 	}
 

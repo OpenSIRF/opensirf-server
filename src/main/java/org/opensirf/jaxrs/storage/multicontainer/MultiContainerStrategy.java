@@ -64,7 +64,7 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 		ContainerConfiguration sourceStorageContainer = poller.getContainerByName(index.getCatalogContainerName(),
 				(MultiContainerConfiguration) config);
 		ISirfDriver driver = AbstractDriverFactory.createDriver(sourceStorageContainer);
-		return driver.containerMetadata(sourceStorageContainer.getContainerName() + "/" + containerName);
+		return driver.containerMetadata(sourceStorageContainer.getContainerName(), containerName);
 	}
 
 	@Override
@@ -101,6 +101,18 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 		}
 	}
 	
+	private ContainerConfiguration getCatalogContainer(String containerName) {
+		ContainerConfiguration c = poller.getContainerByName(
+				readMultiContainerIndex(containerName).getCatalogContainerName(),
+				(MultiContainerConfiguration) config);
+		
+		// Catalog doesn't exist yet, write to container according to distribution policy
+		if(c == null)
+			return poller.findTargetStorageContainer((MultiContainerConfiguration) config);
+		
+		return c;
+	}
+	
 	private MultiContainerIndex readMultiContainerIndex(String containerName) {
 		String indexPath = SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "/" + "index.json";
 		return GenericUnmarshaller.unmarshal("application/json",
@@ -112,6 +124,7 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 		MultiContainerIndex index = readMultiContainerIndex(containerName);
 		ContainerConfiguration sourceStorageContainer = poller.getContainerByName(index.getCatalogContainerName(),
 				(MultiContainerConfiguration) config);
+		
 		String catalogPath = containerName + "/" + SIRFContainer.SIRF_DEFAULT_CATALOG_ID;
 		ISirfDriver driver = AbstractDriverFactory.createDriver(sourceStorageContainer);
 		SIRFCatalog catalog = null;
@@ -146,16 +159,24 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 	@Override
 	public StreamingOutput getPreservationObjectStreamingOutput(String containerName, String poName) {
 		MultiContainerIndex index = readMultiContainerIndex(containerName);
-		ContainerConfiguration sourceStorageContainer = poller.getContainerByName(index.getCatalogContainerName(),
+		ContainerConfiguration catalogStorageContainer = poller.getContainerByName(index.getCatalogContainerName(),
 				(MultiContainerConfiguration) config);
+		log.debug("Found catalog storage container: " + catalogStorageContainer.getContainerName());
 		
+		ContainerConfiguration poStorageContainer = poller.getContainerByName(
+				index.getPoIndex().get(poName), (MultiContainerConfiguration) config);
+				
 		String poPath = containerName + "/" + poName;
-		ISirfDriver sourceDriver = AbstractDriverFactory.createDriver(sourceStorageContainer);
+		ISirfDriver sourceDriver = AbstractDriverFactory.createDriver(poStorageContainer);
 		StreamingOutput so = null;
 		
 		try {
-			poInputStream = sourceDriver.getFileInputStream(sourceStorageContainer.getContainerName(),
+			poInputStream = sourceDriver.getFileInputStream(poStorageContainer.getContainerName(), 
 					poPath);
+			
+			if(poInputStream == null)
+				throw new PreservationObjectNotFoundException("PO " + poName + " not found in "
+						+ "container " + containerName + ".");
 			
 			so = new StreamingOutput() {
 				public void write(OutputStream out) throws IOException, WebApplicationException {
@@ -179,12 +200,12 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 	@Override
 	public void deletePreservationObject(String poUUID, String containerName) {
 		MultiContainerIndex index = readMultiContainerIndex(containerName);
-		ContainerConfiguration sourceStorageContainer = poller.getContainerByName(
+		ContainerConfiguration poStorageContainer = poller.getContainerByName(
 				index.getPoIndex().get(poUUID), (MultiContainerConfiguration) config);
-		ISirfDriver sourceDriver = AbstractDriverFactory.createDriver(sourceStorageContainer);
+		ISirfDriver sourceDriver = AbstractDriverFactory.createDriver(poStorageContainer);
 		
 		sourceDriver.deleteObject(containerName, poUUID);
-		removePreservationObjectFromIndex(containerName, sourceStorageContainer, poUUID);
+		removePreservationObjectFromIndex(containerName, poStorageContainer, poUUID);
 	}
 
 	@Override
@@ -218,8 +239,9 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 
 	@Override
 	public void pushCatalog(SIRFCatalog catalog, String containerName) {
-		ContainerConfiguration target = poller.findTargetStorageContainer(
-				(MultiContainerConfiguration) config);
+		ContainerConfiguration target = getCatalogContainer(containerName);
+		log.debug("Target container to write catalog: " + target.getContainerName());
+		
 		ISirfDriver targetDriver = AbstractDriverFactory.createDriver(target);
 		
 		try {
