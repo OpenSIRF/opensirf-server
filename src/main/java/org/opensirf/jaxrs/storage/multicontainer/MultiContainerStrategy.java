@@ -165,6 +165,8 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 		
 		ContainerConfiguration poStorageContainer = poller.getContainerByName(
 				index.getPoIndex().get(poName), (MultiContainerConfiguration) config);
+
+		log.debug("Found storage container for " + poName + ": " + poStorageContainer);
 				
 		String poPath = containerName + "/" + poName;
 		ISirfDriver sourceDriver = AbstractDriverFactory.createDriver(poStorageContainer);
@@ -218,23 +220,30 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 	}
 
 	@Override
-	public void pushProvenanceInformation(String authorName, String containerName) {
-		ContainerConfiguration target = poller.findTargetStorageContainer(
-				(MultiContainerConfiguration) config);
-		ISirfDriver targetDriver = AbstractDriverFactory.createDriver(target);
-		
+	public void pushPreservationObject(String poUUID, byte[] b, String containerName) {
 		try {
-			targetDriver.uploadObjectFromString(containerName,
-				SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE,
-				new ProvenanceInformationMarshaller("application/json")
-				.marshalProvenanceInformation(new ProvenanceInformation(authorName)));
-
+			ContainerConfiguration target = poller.findTargetStorageContainer(
+					(MultiContainerConfiguration) config);
+			ISirfDriver targetDriver = AbstractDriverFactory.createDriver(target);
+			targetDriver.uploadObjectFromByteArray(containerName, poUUID, b);
+			addPreservationObjectToIndex(containerName, target, poUUID);			
+			
 			targetDriver.close();
-		} catch (JAXBException jbe) {
-			jbe.printStackTrace();
 		} catch(IOException ioe) {
 			ioe.printStackTrace();
 		}
+	}
+
+	@Override
+	public void pushProvenanceInformation(String authorName, String containerName) {
+		try {
+			byte[] b = new ProvenanceInformationMarshaller("application/json")
+					.marshalProvenanceInformation(new ProvenanceInformation(authorName)).getBytes();
+			
+			pushPreservationObject(SIRFContainer.SIRF_DEFAULT_PROVENANCE_MANIFEST_FILE, b, containerName);	
+		} catch(JAXBException jbe) {
+			jbe.printStackTrace();
+		}	
 	}
 
 	@Override
@@ -265,22 +274,7 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 			ioe.printStackTrace();
 		}
 	}
-
-	@Override
-	public void pushPreservationObject(String poUUID, byte[] b, String containerName) {
-		try {
-			ContainerConfiguration target = poller.findTargetStorageContainer(
-					(MultiContainerConfiguration) config);
-			ISirfDriver targetDriver = AbstractDriverFactory.createDriver(target);
-			targetDriver.uploadObjectFromByteArray(containerName, poUUID, b);
-			addPreservationObjectToIndex(containerName, target, poUUID);			
-			
-			targetDriver.close();
-		} catch(IOException ioe) {
-			ioe.printStackTrace();
-		}
-	}
-
+	
 	private void addPreservationObjectToIndex(String containerName,
 			ContainerConfiguration targetStorageContainer, String poUUID) {
 		MultiContainerIndex index = readMultiContainerIndex(containerName);

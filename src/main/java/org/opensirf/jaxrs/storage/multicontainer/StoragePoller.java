@@ -34,6 +34,7 @@ package org.opensirf.jaxrs.storage.multicontainer;
 import org.opensirf.client.SirfClient;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.ContainerConfiguration.Driver;
+import org.opensirf.jaxrs.storage.StorageContainerNotFoundException;
 import org.opensirf.jaxrs.storage.fs.FilesystemConfiguration;
 import org.opensirf.jaxrs.storage.swift.SwiftConfiguration;
 import org.opensirf.jaxrs.storage.swift.SwiftDriver;
@@ -103,7 +104,8 @@ public class StoragePoller {
 			if(c.getContainerName().equalsIgnoreCase(containerName))
 				return c;
 		
-		return null;
+		throw new StorageContainerNotFoundException("The storage container with name " + containerName
+				+ " could not be found.");
 	}
 	
 	public static final String STORAGE_MONITOR_URI = "/opensirf-storage-monitor";
