@@ -113,10 +113,8 @@ public class SwiftDriver implements ISirfDriver {
 	}
 
 	public void uploadObjectFromString(String storageContainerName, String filename, String content) {
-		log.debug("Upload obj: Container = " + storageContainerName + " File = " + filename);
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, storageContainerName);
-		Payload payload = newByteSourcePayload(wrap(content.getBytes()));
-		objectApi.put(filename, payload, PutOptions.Builder.metadata(ImmutableMap.of("key1", "value1")));
+		log.debug("Upload obj from string: redirecting to byte array...");
+		uploadObjectFromByteArray(storageContainerName, filename, content.getBytes());		
 	}
 	
 	public void uploadObjectFromByteArray(String storageContainerName, String filename, byte[] b) {

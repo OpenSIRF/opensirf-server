@@ -73,7 +73,6 @@ public class ElasticityApi {
 			multiConfig.getSubconfigurations().add(containerConfig);
 			config.setContainerConfiguration(multiConfig);
 			
-			
 			FileOutputStream fos = new FileOutputStream(new File(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"));
 			fos.write(GenericMarshaller.marshal("application/json", config).getBytes());
 			fos.flush();
