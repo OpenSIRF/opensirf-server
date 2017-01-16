@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Constants
+swiftBoxName="devsirfswift"
+fsBoxName="devsirffs"
+sirfBoxName="devsirfserver"
+
 # $1=numErrors
 errorExit() {
   echo
@@ -34,8 +39,11 @@ prepare() {
   cat <<-EOF > sirf-dev/opensirf-server/Vagrantfile
     Vagrant.configure("2") do |config|
       config.vm.box = "opensirf/opensirf-server"
+      config.vm.hostname = "$sirfBoxName"
       config.ssh.insert_key = false
       config.vm.provider "virtualbox" do |v|
+	v.name = "$sirfBoxName"
+        config.vm.network "public_network", :adapter => 3
         config.vm.network "private_network", :type => 'dhcp', :name => 'vboxnet0', :adapter => 2
       end
     end
@@ -44,11 +52,14 @@ prepare() {
   cat <<-EOF > sirf-dev/opensirf-swift/Vagrantfile
 	Vagrant.configure("2") do |config|
 			config.vm.box = "opensirf/opensirf-ident-swift"
+			config.vm.hostname = "$swiftBoxName"
 			config.ssh.insert_key = false
 			config.vm.provider "virtualbox" do |v|
 				v.memory = 4096
 				v.cpus = 4
+				v.name = "$swiftBoxName"
 				config.vm.network "private_network", :type => 'dhcp', :name => 'vboxnet0', :adapter => 2
+				config.vm.network "public_network", :adapter => 3
 			end
 		end
 	EOF
@@ -56,8 +67,11 @@ prepare() {
   cat <<-EOF > sirf-dev/opensirf-fs/Vagrantfile
 		Vagrant.configure("2") do |config|
 			config.vm.box = "opensirf/opensirf-base"
+			config.vm.hostname = "$fsBoxName"
 			config.ssh.insert_key = false
 			config.vm.provider "virtualbox" do |v|
+				v.name = "$fsBoxName"
+				config.vm.network "public_network", :adapter => 3
 				config.vm.network "private_network", :type => 'dhcp', :name => 'vboxnet0', :adapter => 2
 			end
 		end
@@ -65,17 +79,28 @@ prepare() {
 
 }
 
+# $1=box name
+resolveHost() {
+  #boxId=$(cat .vagrant/machines/default/virtualbox/index_uuid)
+  pubIP=$(VBoxManage guestproperty get $1 "/VirtualBox/GuestInfo/Net/2/V4/IP" | awk '{print $2}')
+  echo "$pubIP $1" >> ../hosts.add
+}
+
 provisionSirfServer() {
   oldDir=$(pwd)
   cd sirf-dev/opensirf-server
   vagrant up
+  resolveHost $sirfBoxName
   cd $oldDir
 }
 
 provisionSwiftServer() {
   oldDir=$(pwd)
   cd sirf-dev/opensirf-swift
+  pwd
+  ls *
   vagrant up
+  resolveHost $swiftBoxName
   cd $oldDir
 }
 
@@ -83,6 +108,7 @@ provisionFsServer() {
   oldDir=$(pwd)
   cd sirf-dev/opensirf-fs
   vagrant up
+  resolveHost $fsBoxName
   cd $oldDir
 }
 
