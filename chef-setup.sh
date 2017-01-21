@@ -35,7 +35,7 @@ cookbookLocation="https://github.com/OpenSIRF/opensirf_cookbook_register.git"
 # $1=node type
 resolveRunlist() {
   if [ "$1" == "swift" ]; then
-    echo "-o recipe['opensirf_cookbook_register::devstack']"
+    echo "-o recipe[opensirf_cookbook_register::devstack]"
   fi  
 }
 
