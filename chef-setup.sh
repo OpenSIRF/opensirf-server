@@ -2,8 +2,8 @@
 
 cookbookLocation="https://github.com/OpenSIRF/opensirf_cookbook_register.git"
 
-mkdir /var/lib/sirf/cookbooks
-mkdir ~/cookbooks
+mkdir -p /var/lib/sirf/cookbooks
+mkdir -p ~/cookbooks
 cd /var/lib/sirf/cookbooks
 git clone $cookbookLocation
 cd opensirf_cookbook_register
