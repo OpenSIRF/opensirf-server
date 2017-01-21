@@ -42,6 +42,10 @@ resolveRunlist() {
 mkdir -p /var/lib/sirf/cookbooks
 mkdir -p ~/cookbooks
 cd /var/lib/sirf/cookbooks
+if [ -d opensirf_cookbook_register ]; then
+  rm -fr opensirf_cookbook_register.bak/
+  mv opensirf_cookbook_register/ opensirf_cookbook_register.bak/
+fi
 git clone $cookbookLocation
 cd opensirf_cookbook_register
 berks vendor ~/cookbooks
