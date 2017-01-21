@@ -34,9 +34,14 @@ cookbookLocation="https://github.com/OpenSIRF/opensirf_cookbook_register.git"
 
 # $1=node type
 resolveRunlist() {
-  if [ "$1" == "swift" ]; then
+  case $1 in
+  "swift") 
     echo "-o recipe[opensirf_cookbook_register::devstack]"
-  fi  
+    ;;
+  "fs")
+    echo "-o recipe[opensirf_cookbook_register::fs]"
+    ;;
+  esac
 }
 
 mkdir -p /var/lib/sirf/cookbooks
