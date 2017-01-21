@@ -49,6 +49,6 @@ cd
 
 nodeType=$(cat /var/lib/sirf/.server)
 runListOptions=$(resolveRunlist $nodeType)
-echo "RUN LIST FOR THIS NODE == $runList"
+echo "RUN LIST FOR THIS NODE == $runListOptions"
 
 chef-client --local $runListOptions
