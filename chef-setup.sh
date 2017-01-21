@@ -35,7 +35,7 @@ cookbookLocation="https://github.com/OpenSIRF/opensirf_cookbook_register.git"
 # $1=node type
 resolveRunlist() {
   if [ "$1" == "swift" ]; then
-    echo "recipe['opensirf_cookbook_register::devstack']"
+    echo "-o recipe['opensirf_cookbook_register::devstack']"
   fi  
 }
 
@@ -48,7 +48,7 @@ berks vendor ~/cookbooks
 cd
 
 nodeType=$(cat /var/lib/sirf/.server)
-runList=$(resolveRunList $nodeType)
+runListOptions=$(resolveRunlist $nodeType)
 echo "RUN LIST FOR THIS NODE == $runList"
 
-chef-client --local -o $runList
+chef-client --local $runListOptions
