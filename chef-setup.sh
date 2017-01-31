@@ -32,15 +32,16 @@
 
 cookbookLocation="https://github.com/OpenSIRF/opensirf_cookbook_register.git"
 
-# $1=node type
+# $1=node type; $2=recipe
 resolveRunlist() {
   case $1 in
   "swift") 
-    echo "-o recipe[opensirf_cookbook_register::devstack]"
+    echo "-o recipe[opensirf_cookbook_register::$2]"
     ;;
   "fs")
-    echo "-o recipe[opensirf_cookbook_register::fs]"
+    echo "-o recipe[opensirf_cookbook_register::$2]"
     ;;
+  # No recipes for SIRF server
   esac
 }
 
@@ -58,6 +59,5 @@ cd
 
 nodeType=$(cat /var/lib/sirf/.server)
 runListOptions=$(resolveRunlist $nodeType)
-echo "RUN LIST FOR THIS NODE == $runListOptions"
 
 chef-client --local $runListOptions
