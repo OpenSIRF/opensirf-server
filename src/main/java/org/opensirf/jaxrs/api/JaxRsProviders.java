@@ -37,7 +37,7 @@ import java.util.Set;
 import javax.ws.rs.core.Application;
 
 import org.eclipse.persistence.jaxb.rs.MOXyJsonProvider;
-import org.glassfish.jersey.filter.LoggingFilter;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 public class JaxRsProviders extends Application {
@@ -47,7 +47,7 @@ public class JaxRsProviders extends Application {
 		final Set<Class<?>> classes = new HashSet<Class<?>>();
 		// register resources and features
 		classes.add(MultiPartFeature.class);
-		classes.add(LoggingFilter.class);
+		classes.add(LoggingFeature.class);
         classes.add(MOXyJsonProvider.class);
         
 		return classes;

@@ -31,7 +31,6 @@
  */
 package org.opensirf.jaxrs.api;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -66,7 +65,7 @@ import org.opensirf.obj.FixityInformation;
 import org.opensirf.obj.PreservationObjectInformation;
 
 @Path("sirf")
-public class ObjectApi {	
+public class ObjectApi {
 	@GET
 	@Path("container/{containername}/{po}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

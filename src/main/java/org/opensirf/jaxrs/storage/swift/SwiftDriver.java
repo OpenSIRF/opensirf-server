@@ -50,7 +50,6 @@ import org.jclouds.openstack.swift.v1.domain.SwiftObject;
 import org.jclouds.openstack.swift.v1.features.ContainerApi;
 import org.jclouds.openstack.swift.v1.features.ObjectApi;
 import org.jclouds.openstack.swift.v1.options.CreateContainerOptions;
-import org.jclouds.openstack.swift.v1.options.PutOptions;
 import org.opensirf.container.MagicObject;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.storage.ISirfDriver;
@@ -87,17 +86,17 @@ public class SwiftDriver implements ISirfDriver {
 
 	public void createContainerAndMagicObject(String sirfContainerName) {
 		log.info("Creating container and magic object for " + sirfContainerName);
-		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
+		ContainerApi containerApi = swiftApi.getContainerApi(region);
 		CreateContainerOptions options = CreateContainerOptions.Builder.metadata(ImmutableMap.
 				of("containerSpecification", "1.0", "sirfLevel", "1", "sirfCatalogId", "catalog.json"));
-		System.out.println("Creating container " + sirfContainerName);
+		log.debug("Creating container " + sirfContainerName);
 		boolean returnCode = containerApi.create(sirfContainerName, options);
-		System.out.println("Return: " + returnCode);
+		log.debug("Return: " + returnCode);
 	}
 
 	public MagicObject containerMetadata(String storageContainer, String sirfContainer) {
 		log.info("Returning magic object for " + sirfContainer);
-		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
+		ContainerApi containerApi = swiftApi.getContainerApi(region);
 		return new MagicObject(containerApi.get(sirfContainer).getMetadata());
 	}
 
@@ -105,7 +104,7 @@ public class SwiftDriver implements ISirfDriver {
 		String sirfContainerName = filepath.substring(0, filepath.indexOf('/'));
 		String fileName = filepath.substring(filepath.indexOf('/') + 1);
 		log.debug("Get file: Container = " + sirfContainerName + " File = " + fileName);
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, sirfContainerName);
+		ObjectApi objectApi = swiftApi.getObjectApi(region, sirfContainerName);
 		SwiftObject fileObject = objectApi.get(fileName);
 		if(fileObject == null || fileObject.getPayload() == null)
 			return null;		
@@ -119,14 +118,14 @@ public class SwiftDriver implements ISirfDriver {
 	
 	public void uploadObjectFromByteArray(String storageContainerName, String filename, byte[] b) {
 		log.debug("Upload obj from b[]: Container = " + storageContainerName + " File = " + filename);
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, storageContainerName);
+		ObjectApi objectApi = swiftApi.getObjectApi(region, storageContainerName);
 		Payload payload = newByteSourcePayload(wrap(b));
 		objectApi.put(filename, payload);
 	}
 
 	public void deleteContainer(String storageContainerName) {
 		log.info("Deleting storage container: " + storageContainerName);
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, storageContainerName);
+		ObjectApi objectApi = swiftApi.getObjectApi(region, storageContainerName);
 		ObjectList list = objectApi.list();
 
 		Iterator<SwiftObject> itr = list.iterator();
@@ -136,25 +135,25 @@ public class SwiftDriver implements ISirfDriver {
 			objectApi.delete(objectName);
 		}
 
-		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
+		ContainerApi containerApi = swiftApi.getContainerApi(region);
 		containerApi.deleteIfEmpty(storageContainerName);
 	}
 
 	public void deleteObject(String storageContainerName, String objectName) {
 		log.info("Deleting object: " + objectName);
-		ObjectApi objectApi = swiftApi.getObjectApiForRegionAndContainer(region, storageContainerName);
+		ObjectApi objectApi = swiftApi.getObjectApi(region, storageContainerName);
 		objectApi.delete(objectName);
 	}
 
 	public Set<Container> listContainers() {
-		ContainerApi containerApi = swiftApi.getContainerApiForRegion(region);
+		ContainerApi containerApi = swiftApi.getContainerApi(region);
 		Set<Container> containers = containerApi.list().toSet();
 
 		return containers;
 	}
 
 	public void close() throws IOException {
-		Closeables.close(swiftApi, true);
+		//Closeables.close(swiftApi, true);
 		Closeables.close(blobStoreContext, true);
 	}
 }

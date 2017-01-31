@@ -125,8 +125,13 @@ public class ContainerApi {
 		SIRFConfiguration config = new SIRFConfigurationUnmarshaller().
 			unmarshalConfig(new String(Files.readAllBytes(Paths.get(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "conf.json"))));
 		IStorageContainerStrategy strat = AbstractStrategyFactory.createStrategy(config);
-		SIRFCatalog c = strat.getCatalog(containerName);
-		return c;
+		try {
+			SIRFCatalog c = strat.getCatalog(containerName);
+			return c;
+		} catch(PreservationObjectNotFoundException ponfe) {
+			ponfe.printStackTrace();
+			return null;
+		}
 	}
 	
 	@PUT

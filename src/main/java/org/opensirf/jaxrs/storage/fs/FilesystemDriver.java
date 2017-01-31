@@ -54,7 +54,6 @@ import org.opensirf.format.GenericUnmarshaller;
 import org.opensirf.format.SirfFormatException;
 import org.opensirf.jaxrs.api.PreservationObjectNotFoundException;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
-import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.storage.ISirfDriver;
 import org.opensirf.jaxrs.storage.SirfStorageException;
 import org.slf4j.Logger;
@@ -76,7 +75,8 @@ public class FilesystemDriver implements ISirfDriver {
 	}
 
 	public void createContainerAndMagicObject(String containerName) {
-		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+		//String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+		String containerPath = getLocalMountPoint(containerName);
 		createDirectory(containerPath);
 		createMagicObjectFile(containerPath, "1.0", "1", "catalog.json");
 	}
@@ -102,24 +102,29 @@ public class FilesystemDriver implements ISirfDriver {
 
 	public MagicObject getMagicObject(String storageContainer, String sirfContainer) {
 		String containerPath = storageContainer + "/" + sirfContainer;
-		String magicObjectPath = SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "/storage/" + 
+		String magicObjectPath = DEFAULT_NFS_MOUNT_POINT + fsConfig.getEndpoint() + "/" +
 				containerPath + "/" + "magic.json";
 		Path moPath = Paths.get(magicObjectPath);
 		return GenericUnmarshaller.unmarshal("application/json", moPath, MagicObject.class);
 	}
 
-	public InputStream getFileInputStream(String container, String filename) {
+	public InputStream getFileInputStream(String storageContainer, String filename) {
+		
+		String fullFilePath = DEFAULT_NFS_MOUNT_POINT + "/" + fsConfig.getEndpoint() + "/" +
+				fsConfig.getMountPoint() + "/" + filename;
 		try {
-			return new FileInputStream(new File(SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "/storage/" +
-				container + "/" + filename));
+			log.debug("Looking for file " + fullFilePath);
+			return new FileInputStream(new File(fullFilePath));
 		} catch(FileNotFoundException fnfe) {
 			throw new PreservationObjectNotFoundException("The preservation object could not be found."
-					+ " File is missing from storage container: " + filename);
+					+ " File " + filename + " is missing from storage container " + storageContainer + ". ("
+					+ " Full file path: " + fullFilePath + ").");
 		}
 	}
 
 	public void uploadObjectFromString(String containerName, String fileName, String content) {
-		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+		//String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+		String containerPath = getLocalMountPoint(containerName);
 		String objectLocation = containerPath + "/" + fileName;
 		Path objectPath = Paths.get(objectLocation);
 		
@@ -138,7 +143,8 @@ public class FilesystemDriver implements ISirfDriver {
 	}
 
 	public void uploadObjectFromByteArray(String containerName, String fileName, byte[] b) {
-		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+		//String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+		String containerPath = getLocalMountPoint(containerName);
 		String objectLocation = containerPath + "/" + fileName;
 		try {
 			// In case the SIRF container doesn't yet exist in the storage container
@@ -161,7 +167,8 @@ public class FilesystemDriver implements ISirfDriver {
 
 	public void deleteContainer(String containerName) {
 		try {
-			String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+			//String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+			String containerPath = getLocalMountPoint(containerName);
 			log.debug("Deleting container on " + containerPath);
 			FileUtils.deleteDirectory(new File(containerPath));
 		} catch(IOException ioe) {
@@ -176,6 +183,11 @@ public class FilesystemDriver implements ISirfDriver {
 
 	private final FilesystemConfiguration fsConfig;
 
+	private String getLocalMountPoint(String containerName) {
+		return DEFAULT_NFS_MOUNT_POINT + "/" + fsConfig.getEndpoint() + "/" + fsConfig.getMountPoint()
+			+ "/" + containerName;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.opensirf.jaxrs.storage.ISirfDriver#containerMetadata(java.lang.String, java.lang.String)
 	 */
@@ -189,7 +201,8 @@ public class FilesystemDriver implements ISirfDriver {
 	 */
 	@Override
 	public void deleteObject(String containerName, String objectName) {
-		String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+		//String containerPath = fsConfig.getMountPoint() + "/" + containerName;
+		String containerPath = getLocalMountPoint(containerName);
 		deleteFile(containerPath, objectName);
 	}
 
@@ -201,4 +214,6 @@ public class FilesystemDriver implements ISirfDriver {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public static final String DEFAULT_NFS_MOUNT_POINT = "/var/lib/sirf/storage/nfs/";
 }

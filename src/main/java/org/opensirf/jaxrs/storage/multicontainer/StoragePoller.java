@@ -34,10 +34,10 @@ package org.opensirf.jaxrs.storage.multicontainer;
 import org.opensirf.client.SirfClient;
 import org.opensirf.jaxrs.config.ContainerConfiguration;
 import org.opensirf.jaxrs.config.ContainerConfiguration.Driver;
+import org.opensirf.jaxrs.config.SIRFConfiguration;
 import org.opensirf.jaxrs.storage.StorageContainerNotFoundException;
 import org.opensirf.jaxrs.storage.fs.FilesystemConfiguration;
 import org.opensirf.jaxrs.storage.swift.SwiftConfiguration;
-import org.opensirf.jaxrs.storage.swift.SwiftDriver;
 import org.opensirf.storage.monitor.api.DiskApi;
 import org.opensirf.storage.monitor.model.StorageMetadata;
 import org.slf4j.Logger;
@@ -62,7 +62,10 @@ public class StoragePoller {
 				if(c.getDriver().equalsIgnoreCase(Driver.FILESYSTEM.toString())) {
 					SirfClient cli = new SirfClient(c.getEndpoint() + ":" + 
 							FilesystemConfiguration.DEFAULT_STORAGE_MONITOR_PORT + STORAGE_MONITOR_URI);
-					StorageMetadata meta = cli.getStorageMetadata(((FilesystemConfiguration) c).getMountPoint());
+					String mountPoint = SIRFConfiguration.SIRF_DEFAULT_DIRECTORY + "storage/"
+							+ ((FilesystemConfiguration) c).getMountPoint();
+					log.debug("Getting metadata for " + mountPoint + " at " + c.getEndpoint());
+					StorageMetadata meta = cli.getStorageMetadata(mountPoint);
 					if(meta.getFreeDiskSpace() > mostFreeDiskSpace) {
 						targetContainer = c;
 						mostFreeDiskSpace = meta.getFreeDiskSpace();
@@ -79,6 +82,8 @@ public class StoragePoller {
 					endpoint += STORAGE_MONITOR_URI;
 					
 					SirfClient cli = new SirfClient(endpoint);
+					log.debug("Getting metadata: " + c.getContainerName() + " at " + c.getEndpoint());
+					
 					StorageMetadata meta = cli.getStorageMetadata(DiskApi.DEFAULT_SWIFT_FILESYSTEM_LOCATION);
 
 					log.debug(c.getContainerName() + ": " + meta.getFreeDiskSpace() + "/1 free (" +

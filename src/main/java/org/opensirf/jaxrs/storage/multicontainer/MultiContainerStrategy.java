@@ -13,6 +13,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.JAXBException;
 
+import org.jclouds.http.HttpResponseException;
 import org.opensirf.catalog.SIRFCatalog;
 import org.opensirf.container.MagicObject;
 import org.opensirf.container.ProvenanceInformation;
@@ -149,6 +150,10 @@ public class MultiContainerStrategy implements IStorageContainerStrategy {
 			log.warn("Failure trying to find catalog. If a catalog is being pushed for the first "
 					+ "time it is safe to ignore this message.");
 			ponfe.printStackTrace();
+		} catch(HttpResponseException httpe) {
+			log.warn("HTTP failure (OpenStack?) trying to find catalog. If a catalog is being pushed"
+					+ " for the first time it is safe to ignore this message.");
+			httpe.printStackTrace();
 		} catch(IOException ioe) {
 			ioe.printStackTrace();
 		}
