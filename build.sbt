@@ -40,9 +40,19 @@ libraryDependencies ++= Seq(
     "com.novocode" % "junit-interface" % "0.4" % "test",
     "com.jcraft" % "jsch" % "0.1.54",
     "com.google.code.gson" % "gson" % "2.6.2",
-    "org.glassfish.jersey.core" % "jersey-server" % "1.19.3",
+    "org.glassfish.jersey.core" % "jersey-server" % "2.25",
     "org.glassfish.jersey.ext" % "jersey-entity-filtering" % "2.25",
-    "org.glassfish.jersey.media" % "jersey-media-moxy" % "2.25"
+    "org.glassfish.jersey.media" % "jersey-media-moxy" % "2.25",
+    "aopalliance" % "aopalliance" % "1.0",
+    "org.ow2.asm" % "asm-debug-all" % "5.0.2",
+    "org.bouncycastle" % "bcpkix-jdk15on" % "1.49",
+    "org.slf4j" % "slf4j-api" % "1.7.2",
+    "org.slf4j" % "slf4j-jdk14" % "1.7.22",
+    "org.apache.jclouds" % "jclouds-core" % "1.9.3",
+    "org.apache.jclouds" % "jclouds-blobstore" % "1.9.3",
+    "org.apache.jclouds.driver" % "jclouds-slf4j" % "1.9.3",
+    "commons-io" % "commons-io" % "2.4",
+    "org.apache.jclouds.api" % "openstack-swift" % "1.9.3"
 )
 
 resolvers += Resolver.url("SIRF Artifactory", url("http://200.144.189.109:58082/artifactory"))(Resolver.ivyStylePatterns)
