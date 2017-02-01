@@ -32,19 +32,6 @@
 
 cookbookLocation="https://github.com/OpenSIRF/opensirf_cookbook_register.git"
 
-# $1=node type; $2=recipe
-resolveRunlist() {
-  case $1 in
-  "swift") 
-    echo "-o recipe[opensirf_cookbook_register::$2]"
-    ;;
-  "fs")
-    echo "-o recipe[opensirf_cookbook_register::$2]"
-    ;;
-  # No recipes for SIRF server
-  esac
-}
-
 mkdir -p /var/lib/sirf/cookbooks
 mkdir -p ~/cookbooks
 cd /var/lib/sirf/cookbooks
@@ -57,8 +44,4 @@ cd opensirf_cookbook_register
 berks vendor ~/cookbooks
 cd
 
-recipe=$1
-nodeType=$(cat /var/lib/sirf/.server)
-runListOptions=$(resolveRunlist $nodeType $recipe)
-
-chef-client --local $runListOptions
+chef-client --local -o recipe[opensirf_cookbook_register::$1]
