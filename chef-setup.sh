@@ -57,7 +57,8 @@ cd opensirf_cookbook_register
 berks vendor ~/cookbooks
 cd
 
+recipe=$1
 nodeType=$(cat /var/lib/sirf/.server)
-runListOptions=$(resolveRunlist $nodeType)
+runListOptions=$(resolveRunlist $nodeType $recipe)
 
 chef-client --local $runListOptions
