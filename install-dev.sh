@@ -105,6 +105,8 @@ prepare() {
           config.ssh.insert_key = false
           config.vm.provider "virtualbox" do |v|
             v.name = "$fsBoxName"
+            v.customize ['createhd', '--filename', "sirfStorage1.vdi", '--size', '4096']
+            v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', "sirfStorage1.vdi"]
             config.vm.network "public_network", :adapter => 3
             config.vm.network "private_network", :type => 'dhcp', :name => 'vboxnet0', :adapter => 2
           end
@@ -129,23 +131,24 @@ provisionServer() {
   vmId[$1]=$(cat .vagrant/machines/default/virtualbox/index_uuid)
   addHost $1
   cd $oldDir
-  runChefSetup $1
+  runChefSetup $1 $2
 }
 
 provisionSirfServer() {
-  provisionServer $sirfBoxName
+  provisionServer $sirfBoxName server
 }
 
 provisionSwiftServer() {
-  provisionServer $swiftBoxName
+  provisionServer $swiftBoxName devstack
 }
 
 provisionFsServer() {
-  provisionServer $fsBoxName
+  provisionServer $fsBoxName fs
 }
 
+#$1=server; $2=recipe name
 runChefSetup() {
-  vagrant ssh ${vmId[$1]} -c "sudo sh -c \"curl -s $chefSetup | bash\""
+  vagrant ssh ${vmId[$1]} -c "sudo sh -c \"curl -s $chefSetup | bash -s $2\""
 }
 
 configureHosts() {
@@ -156,12 +159,32 @@ configureHosts() {
   done
 }
 
+addConfFile() {
+  runChefSetup $sirfBoxName conf
+}
+
+setupNfsFs() {
+  runChefSetup $fsBoxName nfs_fs
+}
+
+setupNfsSirf() {
+  runChefSetup $sirfBoxName nfs_sirf
+}
+
+runTests() {
+  runChefSetup $sirfBoxName test_suite
+}
+
 declare -A ip
 declare -A vmId
 
 checkPreReqs
 prepare
-provisionSirfServer
 provisionSwiftServer
 provisionFsServer
+provisionSirfServer
 configureHosts
+setupNfsFs
+setupNfsSirf
+addConfFile
+runTests
