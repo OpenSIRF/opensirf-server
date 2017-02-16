@@ -38,8 +38,6 @@ package org.opensirf.elast.controller;
 public class ElasticityController {
 	public String instantiateNewNode(String cloudProviderServer, String user, String baseImage, String vmName) {
 		ElasticitySshClient client = new ElasticitySshClient(user, cloudProviderServer, 22);
-		client.addIdentity("/home/phil/.ssh/id_rsa", "Elele!1234");
-		client.setKnownHosts("/home/phil/.ssh/known_hosts");
 		client.connect();
 		String output = client.createNewVagrantVM(baseImage, vmName);
 		client.disconnect();
